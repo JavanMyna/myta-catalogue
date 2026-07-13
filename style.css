@@ -202,6 +202,63 @@ body::before {
   letter-spacing: 1px;
 }
 
+/* ============================================================
+   Dark room mode (before the light switch is clicked)
+   The room starts dark. Hotspot dots are dimmed so they're hard
+   to see. Only the light switch dot is bright. Clicking the
+   light switch removes .is-dark and everything returns to normal.
+   ============================================================ */
+
+/* Dark room: dim the image. brightness(0.25) = 25% of normal brightness.
+   Not pitch black — you can faintly see the shelf, but hotspots are
+   hard to spot. */
+.room.is-dark .room-img {
+  filter: brightness(0.25);
+}
+
+/* Dark room: dim all hotspot dots so they're hard to see.
+   The light switch dot stays bright (see below). */
+.room.is-dark .hotspot:not(.light-switch) .hotspot-dot {
+  opacity: 0.12;
+  animation: none;
+  box-shadow: none;
+}
+
+/* Light switch dot: ALWAYS bright, even in dark mode.
+   It's the only hint the user has. We use a warmer gold color
+   and a stronger glow so it reads as "a light to turn on". */
+.hotspot.light-switch .hotspot-dot {
+  background: #ffcc33;
+  box-shadow: 0 0 12px 4px rgba(255, 204, 51, 0.8);
+  width: 12px;
+  height: 12px;
+}
+
+/* In dark mode, the light switch dot pulses more urgently. */
+.room.is-dark .hotspot.light-switch .hotspot-dot {
+  animation: pulse-urgent 1s ease-in-out infinite;
+}
+@keyframes pulse-urgent {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.4; transform: scale(1.6); }
+}
+
+/* Dark room: the CRT scanlines get stronger for atmosphere. */
+.room.is-dark::after {
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0px,
+    rgba(0, 0, 0, 0) 2px,
+    rgba(0, 0, 0, 0.3) 3px,
+    rgba(0, 0, 0, 0) 4px
+  );
+}
+
+/* Smooth transition when the light turns on. */
+.room-img, .room .hotspot-dot {
+  transition: filter .8s ease, opacity .8s ease;
+}
+
 /* Hotspots: invisible clickable boxes over the image.
    They are positioned with inline left/top/width/height in percentages,
    so they track the image as it scales.
@@ -410,12 +467,49 @@ img.panel-thumb {
   cursor: zoom-out;
   padding: 20px;
 }
-#lightbox img {
+/* .lightbox-frame wraps the image + caption so they stack vertically and
+   clicks on the caption don't close the lightbox (only clicks on the dark
+   area around the frame do). */
+.lightbox-frame {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
   max-width: 100%;
   max-height: 100%;
+  cursor: default;
+}
+#lightbox img {
+  max-width: 100%;
+  max-height: 80vh;
   object-fit: contain;            /* show the WHOLE image, no crop */
   box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
-  cursor: default;                /* clicks on the image itself don't close */
+}
+.lightbox-caption {
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--text);
+  text-align: center;
+  max-width: 600px;
+  line-height: 1.5;
+  padding: 0 12px;
+}
+.lightbox-caption .cap-title {
+  font-family: var(--font-head);
+  font-size: 11px;
+  color: var(--red-bright);
+  display: block;
+  margin-bottom: 6px;
+}
+.lightbox-caption .cap-meta {
+  font-size: 13px;
+  color: var(--red-dim);
+  display: block;
+  margin-bottom: 6px;
+}
+.lightbox-caption .cap-desc {
+  font-size: 15px;
+  color: var(--text);
 }
 
 /* ----- Journal posts ----- */
@@ -547,17 +641,128 @@ audio {
   color: var(--red-dim);
 }
 
-/* ----- Full-image panel (corkboard) ----- */
-/* This panel body drops the padding so the image can fill it edge to edge. */
-.panel-body-img { padding: 0; }
+/* ----- About me block ----- */
+/* Photo on top, text below on mobile; side by side on wider panels. */
+.about-block {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+}
+.about-photo {
+  width: min(100%, 220px);
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border: 2px solid var(--red-dim);
+}
+.about-text {
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--text);
+}
+.about-text p { margin-bottom: 10px; }
+.about-text p:last-child { margin-bottom: 0; }
 
+/* ----- Project links ----- */
+.project-item { margin-bottom: 20px; }
+.project-desc {
+  display: block;
+  font-size: 17px;
+  color: var(--text);
+  line-height: 1.5;
+  margin: 6px 0 10px;
+}
+.project-links { display: flex; gap: 10px; flex-wrap: wrap; }
+.project-link {
+  font-family: var(--font-head);
+  font-size: 9px;
+  color: var(--red-bright);
+  text-decoration: none;
+  border: 1px solid var(--red-dim);
+  padding: 6px 10px;
+}
+.project-link:hover {
+  background: var(--red);
+  color: #fff;
+  border-color: var(--red);
+}
+
+/* ----- Clock panel ----- */
+.clock-body {
+  text-align: center;
+  padding: 30px 18px;
+}
+.clock-display {
+  font-family: var(--font-head);
+  font-size: clamp(24px, 6vw, 36px);
+  color: var(--red-bright);
+  text-shadow: 0 0 16px rgba(209, 26, 26, 0.4);
+  margin-bottom: 12px;
+  letter-spacing: 2px;
+}
+.clock-label {
+  font-family: var(--font-head);
+  font-size: 10px;
+  color: var(--red-dim);
+}
+
+/* ----- Shuffle music player (fixed bar at bottom) ----- */
+/* Non-invasive: a thin bar at the bottom of the screen. Doesn't block the
+   room. Appears only after the OST fades out. */
+#shuffle-player {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 15;                   /* below panels (30) and lightbox (40) */
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  background: rgba(8, 4, 4, 0.95);
+  border-top: 2px solid var(--red);
+  font-family: var(--font-head);
+  font-size: 10px;
+  color: var(--text);
+}
+.shuffle-btn {
+  font-family: var(--font-head);
+  font-size: 10px;
+  background: transparent;
+  border: 1px solid var(--red-dim);
+  color: var(--red-bright);
+  padding: 5px 8px;
+  cursor: pointer;
+  line-height: 1;
+}
+.shuffle-btn:hover { background: var(--red); color: #fff; border-color: var(--red); }
+.shuffle-play { min-width: 50px; }
+.shuffle-label {
+  flex: 1;                       /* takes up remaining space */
+  font-size: 9px;
+  color: var(--red-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.shuffle-close { margin-left: auto; }
+
+/* ----- Full-image panel (corkboard) ----- */
 .full-img {
   display: block;
   width: 100%;
   height: auto;
-  max-height: 78vh;          /* keep it inside the viewport */
+  max-height: 72vh;          /* leave room for the description above */
   object-fit: contain;       /* show the whole image, don't crop */
   background: #000;
+}
+
+/* Corkboard description text (sits above the full image) */
+.corkboard-desc {
+  font-size: 17px;
+  color: var(--text);
+  line-height: 1.6;
+  margin-bottom: 16px;
 }
 
 /* ============================================================

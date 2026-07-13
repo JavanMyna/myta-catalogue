@@ -38,7 +38,7 @@
        The image is the room. Hotspots are invisible boxes positioned with
        percentages over the image, so they stay aligned at any screen size. -->
   <main id="stage">
-    <div class="room" id="room">
+    <div class="room is-dark" id="room">
       <img class="room-img" src="mainPic.jpg" alt="Fred's room shelf" />
 
       <!-- ===== Hotspots =====
@@ -52,6 +52,15 @@
            To resize, change width/height. -->
 
       <!-- ===== WORKING hotspots (open a panel) ===== -->
+
+      <!-- Light switch -> turns on the room lights (removes .is-dark from room).
+           This is the ONLY clearly visible hotspot when the room is dark.
+           All other hotspots are dimmed until this is clicked. -->
+      <button type="button" class="hotspot light-switch" id="light-switch"
+              style="left: 11.6%; top: 26.1%; width: 8%; height: 10%;"
+              aria-label="Turn on the lights" title="Light switch">
+        <span class="hotspot-dot"></span>
+      </button>
 
       <!-- Beach photo (on wall) -> "my life" gallery (cats + people) -->
       <!-- Position from Fred's earlier list; nudge if needed. -->
@@ -173,26 +182,49 @@
   <div id="panels">
 
     <!-- Projects panel (the laptop screen) -->
-    <!-- REPLACE: projects list -->
+    <!-- Content adapted from the old MynaCatalogue project. -->
     <section class="panel" id="panel-projects" role="dialog" aria-modal="true" aria-labelledby="panel-projects-title" hidden>
       <div class="panel-bar">
         <span class="panel-title" id="panel-projects-title">Projects</span>
         <button type="button" class="panel-close" data-close aria-label="Close panel">x</button>
       </div>
       <div class="panel-body">
-        <ul class="panel-list">
+        <ul class="panel-list project-list">
           <!-- REPLACE: project entries -->
-          <li>
-            <span class="list-label">JBC Catalogue</span>
-            <span class="list-desc">Description goes here.</span>
+          <li class="project-item">
+            <span class="list-label">Jess Boubie Craft website</span>
+            <span class="list-desc">Static site · HTML / CSS / JS</span>
+            <span class="project-desc">A handcrafted-brass jewellery catalogue site for Jess Boubie Craft, built as a static site.</span>
+            <div class="project-links">
+              <a class="project-link" href="https://github.com/JavanMyna/jess-boubie-craft" target="_blank" rel="noopener">GitHub</a>
+              <a class="project-link" href="https://jess-boubie-craft.mynko.workers.dev/" target="_blank" rel="noopener">Live</a>
+            </div>
           </li>
-          <li>
-            <span class="list-label">Game</span>
-            <span class="list-desc">Description goes here.</span>
+          <li class="project-item">
+            <span class="list-label">7 Degrees</span>
+            <span class="list-desc">Python game</span>
+            <span class="project-desc">My first long term project. A simple Python game. It was shelved long ago so I'm hoping one day I would come back to rebuild it. I really want it to be playable at least in the browser yk — ehhh that's a future problem for me.</span>
+            <div class="project-links">
+              <a class="project-link" href="https://github.com/JavanMyna/7-Degrees/tree/main" target="_blank" rel="noopener">GitHub</a>
+              <a class="project-link" href="https://javanmyna.github.io/7-Degrees/" target="_blank" rel="noopener">Live</a>
+            </div>
           </li>
-          <li>
-            <span class="list-label">PSPM Analysis</span>
-            <span class="list-desc">Description goes here.</span>
+          <li class="project-item">
+            <span class="list-label">Matrics 25/26 PSPM Analysis</span>
+            <span class="list-desc">Data analysis</span>
+            <span class="project-desc">A data-analysis site for Matrics 25/26 PSPM results. Currently it looks broken on phone, I'll fix it later.</span>
+            <div class="project-links">
+              <a class="project-link" href="https://kml-2526-analysis.netlify.app/" target="_blank" rel="noopener">Live</a>
+            </div>
+          </li>
+          <!-- REPLACE: Myna Catalogue description -->
+          <li class="project-item">
+            <span class="list-label">Myna Catalogue</span>
+            <span class="list-desc">Static site · HTML / CSS / JS</span>
+            <span class="project-desc">My first personal catalogue site — the predecessor to this one. A collection of my drawings, photos, music, and code in one place.</span>
+            <div class="project-links">
+              <a class="project-link" href="https://javanmyna.github.io/myna-catalogue/" target="_blank" rel="noopener">Live</a>
+            </div>
           </li>
         </ul>
       </div>
@@ -235,16 +267,15 @@
       </div>
     </section>
 
-    <!-- Clock panel (placeholder — functioning clock is a future project) -->
-    <!-- REPLACE: functioning clock. For now this is a "coming soon" stub. -->
+    <!-- Clock panel — functional live clock, UTC+8 -->
     <section class="panel" id="panel-clock" role="dialog" aria-modal="true" aria-labelledby="panel-clock-title" hidden>
       <div class="panel-bar">
         <span class="panel-title" id="panel-clock-title">Clock</span>
         <button type="button" class="panel-close" data-close aria-label="Close panel">x</button>
       </div>
-      <div class="panel-body">
-        <p class="panel-intro">A functioning clock will live here one day.</p>
-        <p class="panel-stub">[ coming later ]</p>
+      <div class="panel-body clock-body">
+        <div class="clock-display" id="clock-display">--:--:--</div>
+        <p class="clock-label">UTC+8</p>
       </div>
     </section>
 
@@ -282,16 +313,21 @@
     </section>
 
     <!-- About me panel -->
-    <!-- REPLACE: about-me text -->
+    <!-- Content adapted from the old MynaCatalogue project. -->
     <section class="panel" id="panel-about" role="dialog" aria-modal="true" aria-labelledby="panel-about-title" hidden>
       <div class="panel-bar">
         <span class="panel-title" id="panel-about-title">About</span>
         <button type="button" class="panel-close" data-close aria-label="Close panel">x</button>
       </div>
       <div class="panel-body">
-        <!-- REPLACE: about-me text -->
-        <p>A few sentences about yourself.</p>
-        <p>What you do, what you care about, where to find you.</p>
+        <div class="about-block">
+          <img class="about-photo" src="assets/photography/people/fred01.jpg" alt="Photo of Fred">
+          <div class="about-text">
+            <!-- REPLACE: about-me text -->
+            <p>Hi, I'm Fred, I make things.</p>
+            <p>This archive is where I collect them in one place — drawings, photos, music, and code — instead of leaving them scattered across folders and platforms.</p>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -436,7 +472,13 @@
         <span class="panel-title" id="panel-corkboard-title">The board</span>
         <button type="button" class="panel-close" data-close aria-label="Close panel">x</button>
       </div>
-      <div class="panel-body panel-body-img">
+      <div class="panel-body">
+        <!-- REPLACE: corkboard description — write about the board here -->
+        <p class="panel-intro">the whole drawing board</p>
+        <p class="corkboard-desc">
+          REPLACE: Write your description of the corkboard here. What's on it,
+          what it means to you, how you use it, etc.
+        </p>
         <img class="full-img" src="corkBoard.jpg" alt="The whole corkboard / drawing board">
       </div>
     </section>
@@ -447,7 +489,25 @@
        A hidden overlay that shows a clicked thumbnail at full size.
        JS fills the <img src> and unhides it; clicking the dark area or Esc closes. -->
   <div id="lightbox" hidden>
-    <img src="" alt="" />
+    <div class="lightbox-frame">
+      <img src="" alt="" />
+      <div class="lightbox-caption" id="lightbox-caption" hidden></div>
+    </div>
+  </div>
+
+  <!-- ===== Shuffle music player =====
+       A small fixed bar at the bottom of the screen. Appears after the OST
+       fades out (when a music track is first played). Non-invasive: sits at
+       the bottom, doesn't block the room. User can play/pause/skip songs in
+       shuffle order. -->
+  <div id="shuffle-player" hidden>
+    <button type="button" class="shuffle-btn" id="shuffle-prev" aria-label="Previous track">&#9664;&#9664;</button>
+    <button type="button" class="shuffle-btn shuffle-play" id="shuffle-play" aria-label="Play shuffle">play</button>
+    <button type="button" class="shuffle-btn" id="shuffle-next" aria-label="Next track">&#9654;&#9654;</button>
+    <span class="shuffle-label" id="shuffle-label">shuffle</span>
+    <button type="button" class="shuffle-btn shuffle-close" id="shuffle-close" aria-label="Close shuffle player">x</button>
+    <audio id="shuffle-audio" preload="none"></audio>
+  </div>
   </div>
 
   <!-- Background OST. Started on splash click. Not looped. -->
