@@ -30,6 +30,7 @@
       <h1 class="splash-title">MitaCatalogue</h1>
       <p class="splash-sub">[ click to enter ]</p>
       <p class="splash-hint">headphones recommended</p>
+      <p class="splash-loading" hidden>loading audio...</p>
     </div>
   </div>
 
@@ -198,58 +199,17 @@
     </section>
 
     <!-- Music composition panel (sompoton) -->
-    <!-- REPLACE: track list. Files live in assets/music/. To add more, drop
-         a file in that folder and copy a <li> block below. -->
+    <!-- Songs are rendered from songs.js by script.js into #music-tracks. -->
     <section class="panel" id="panel-music" role="dialog" aria-modal="true" aria-labelledby="panel-music-title" hidden>
       <div class="panel-bar">
         <span class="panel-title" id="panel-music-title">Music</span>
         <button type="button" class="panel-close" data-close aria-label="Close panel">x</button>
       </div>
       <div class="panel-body">
-        <!-- REPLACE: instruments blurb -->
         <p class="panel-intro">stuff I've written</p>
         <p class="music-bio">I play <strong>Sundatang</strong> and <strong>Sompoton</strong> (traditional instruments), and <strong>Guitar</strong>.</p>
-
-        <ul class="panel-list music-list">
-          <!-- REPLACE: track entries. <audio controls> gives a play button.
-               loading="lazy" on the audio means it only loads when the panel opens. -->
-          <li>
-            <span class="list-label">dazed</span>
-            <audio controls preload="none" src="assets/music/dazed.mp3"></audio>
-          </li>
-          <li>
-            <span class="list-label">deadpool_bag2</span>
-            <audio controls preload="none" src="assets/music/deadpool_bag2.mp3"></audio>
-          </li>
-          <li>
-            <span class="list-label">dfordustbin</span>
-            <audio controls preload="none" src="assets/music/dfordustbin.mp3"></audio>
-          </li>
-          <li>
-            <span class="list-label">Fy,IbnG</span>
-            <audio controls preload="none" src="assets/music/Fy,IbnG.mp3"></audio>
-          </li>
-          <li>
-            <span class="list-label">l&amp;m</span>
-            <audio controls preload="none" src="assets/music/l&m.mp3"></audio>
-          </li>
-          <li>
-            <span class="list-label">lifeline</span>
-            <audio controls preload="none" src="assets/music/lifeline.mp3"></audio>
-          </li>
-          <li>
-            <span class="list-label">lyna</span>
-            <audio controls preload="none" src="assets/music/lyna.mp3"></audio>
-          </li>
-          <li>
-            <span class="list-label">manyafication</span>
-            <audio controls preload="none" src="assets/music/manyafication.mp3"></audio>
-          </li>
-          <li>
-            <span class="list-label">P(Xr), nCrP^nQ^n-r, PQ1</span>
-            <audio controls preload="none" src="assets/music/P(Xr), nCrP^nQ^n-r, PQ1.mp3"></audio>
-          </li>
-        </ul>
+        <!-- JS fills this container with song cards from songs.js -->
+        <div id="music-tracks"></div>
       </div>
     </section>
 
@@ -493,6 +453,8 @@
   <!-- Background OST. Started on splash click. Not looped. -->
   <audio id="ost" src="assets/music/dazed.mp3" preload="auto"></audio>
 
+  <!-- Song data (copied from MynaCatalogue; single source of truth for the music panel) -->
+  <script src="songs.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

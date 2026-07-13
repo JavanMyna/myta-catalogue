@@ -68,15 +68,18 @@ body::before {
    ============================================================ */
 
 #splash {
-  position: relative;
+  /* Fixed overlay on ALL screen sizes — covers the room until clicked.
+     Semi-transparent so the room is faintly visible behind it. */
+  position: fixed;
+  inset: 0;
   z-index: 20;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  min-height: 100vh;
   padding: 24px;
-  background: var(--ink);
+  background: rgba(8, 4, 4, 0.88);
+  backdrop-filter: blur(2px);
   cursor: pointer;
   transition: opacity .6s ease;
 }
@@ -105,6 +108,26 @@ body::before {
   font-style: italic;
 }
 
+/* Loading indicator: shown by JS while the OST buffers.
+   A simple blinking "loading audio..." text. */
+.splash-loading {
+  font-family: var(--font-head);
+  font-size: 10px;
+  color: var(--red-bright);
+  margin-top: 18px;
+  animation: blink 1s steps(2) infinite;
+}
+@keyframes blink {
+  50% { opacity: 0.2; }
+}
+
+/* When loading, hide the "click to enter" text so the user knows
+   something is happening, not that their click was ignored. */
+#splash.is-loading .splash-sub,
+#splash.is-loading .splash-hint {
+  display: none;
+}
+
 /* After entering: fade the splash out. */
 #splash.is-hidden {
   opacity: 0;
@@ -121,8 +144,14 @@ body::before {
 #stage {
   position: relative;
   z-index: 1;
+  /* Center the room in the viewport on all screen sizes.
+     Since the splash is now a fixed overlay (not in flow), the stage
+     needs to fill the viewport and center its content. */
+  min-height: 100vh;
   padding: 16px 12px 64px;
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
 }
 
@@ -432,6 +461,92 @@ audio {
   height: 34px;
 }
 
+/* ----- Song cards (rendered from songs.js) ----- */
+/* Each song is a "card" with a clickable title, an audio player, and a
+   hidden details section that expands when the title is clicked. */
+.song-card {
+  margin-bottom: 18px;
+  padding: 12px;
+  background: #1a0a0c;
+  border: 1px solid var(--red-dim);
+  border-radius: 0;
+}
+.song-card:hover { border-color: var(--red); }
+
+/* The title button: clicking it toggles the details view. */
+.song-title {
+  font-family: var(--font-head);
+  font-size: 11px;
+  color: var(--red-bright);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  padding: 0;
+  margin-bottom: 8px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.song-title:hover { color: var(--text); }
+
+/* Small "details" indicator that hints there's more to see */
+.song-title::after {
+  content: "[ + ]";
+  font-size: 9px;
+  color: var(--red-dim);
+}
+.song-card.is-expanded .song-title::after {
+  content: "[ - ]";
+}
+
+.song-meta {
+  font-size: 14px;
+  color: var(--red-dim);
+  margin-bottom: 8px;
+}
+
+/* Details section: hidden by default, shown when .is-expanded is added. */
+.song-details {
+  display: none;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--red-dim);
+}
+.song-card.is-expanded .song-details { display: block; }
+
+.song-story {
+  font-size: 17px;
+  color: var(--text);
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+/* SoundCloud link — a clear, deliberate link (not a whole-card redirect).
+   Only shown when soundcloudUrl is not null. */
+.song-link {
+  font-family: var(--font-head);
+  font-size: 9px;
+  color: var(--red-bright);
+  text-decoration: none;
+  border: 1px solid var(--red-dim);
+  padding: 6px 10px;
+  display: inline-block;
+}
+.song-link:hover {
+  background: var(--red);
+  color: #fff;
+  border-color: var(--red);
+}
+
+/* "No SoundCloud" note for tracks without a URL */
+.song-nolink {
+  font-family: var(--font-head);
+  font-size: 8px;
+  color: var(--red-dim);
+}
+
 /* ----- Full-image panel (corkboard) ----- */
 /* This panel body drops the padding so the image can fill it edge to edge. */
 .panel-body-img { padding: 0; }
@@ -454,23 +569,8 @@ audio {
    ============================================================ */
 
 @media (min-width: 768px) {
-  /* Splash: fixed overlay, room shows faintly behind (Fred chose this option). */
-  #splash {
-    position: fixed;
-    inset: 0;
-    background: rgba(8, 4, 4, 0.86);
-    backdrop-filter: blur(2px);
-  }
-
-  /* Stage: vertically + horizontally center the room in the viewport.
-     flex-direction: column so the caption sits below the room. */
-  #stage {
-    min-height: 100vh;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 4vh 20px;
-  }
+  /* Stage already centers from the base styles; desktop just adds
+     the height-based room sizing and stronger glow. */
 
   /* Room: size to viewport HEIGHT (not width) since the image is portrait 3:4.
      calc(82vh * 0.75) = "82% of screen height, times the 3/4 aspect ratio"
