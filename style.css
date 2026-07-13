@@ -1,0 +1,286 @@
+/* ============================================================
+   MitaCatalogue — style.css
+   Red + black, pixel fonts. Mobile-first; desktop tweaks below.
+   ============================================================ */
+
+/* :root is where I keep "variables" — reusable values.
+   Instead of typing the same red everywhere, I define it once
+   here and use var(--red) later. Change it once here = changes everywhere. */
+:root {
+  --red: #d11a1a;
+  --red-bright: #ff3b3b;
+  --red-dim: #7a1010;
+  --ink: #0c0c0c;
+  --panel-bg: #15080a;
+  --text: #f3e6e6;
+  --font-head: "Press Start 2P", monospace;   /* chunky pixel font: headers/labels */
+  --font-body: "Pixelify Sans", monospace;    /* readable pixel font: body text */
+  --room-max: 620px;                          /* how wide the room image is allowed to get */
+}
+
+/* A "reset" — strips default browser margins/padding so I control spacing. */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* The [hidden] HTML attribute normally hides an element, but any CSS rule
+   that sets display (like .panel { display: flex } below) overrides it.
+   !important here makes [hidden] always win, so panels stay hidden until
+   JS removes the attribute. Without this, panels show on load and the
+   close button silently fails. */
+[hidden] { display: none !important; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  background: var(--ink);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 1.5;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Tiny screen-glow behind everything for atmosphere */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at 50% 40%, #1a0606 0%, #000 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ============================================================
+   Splash / click to enter
+   ============================================================ */
+
+#splash {
+  position: relative;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 100vh;
+  padding: 24px;
+  background: var(--ink);
+  cursor: pointer;
+  transition: opacity .6s ease;
+}
+
+.splash-inner { user-select: none; }
+
+.splash-title {
+  font-family: var(--font-head);
+  font-size: clamp(20px, 6vw, 44px);
+  color: var(--red-bright);
+  letter-spacing: 1px;
+  text-shadow: 0 0 12px rgba(209, 26, 26, 0.5);
+  margin-bottom: 24px;
+}
+
+.splash-sub {
+  font-family: var(--font-head);
+  font-size: clamp(10px, 2.6vw, 14px);
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+.splash-hint {
+  font-size: 14px;
+  color: var(--red-dim);
+  font-style: italic;
+}
+
+/* After entering: fade the splash out. */
+#splash.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+#splash.is-gone {
+  display: none;
+}
+
+/* ============================================================
+   The stage + room image + hotspots
+   ============================================================ */
+
+#stage {
+  position: relative;
+  z-index: 1;
+  padding: 16px 12px 64px;
+  display: flex;
+  justify-content: center;
+}
+
+/* .room wraps the image. It shrinks to the image size, which is what lets
+   the percentage-positioned hotspots line up with the picture. */
+.room {
+  position: relative;
+  width: 100%;
+  max-width: var(--room-max);
+  line-height: 0; /* removes a tiny gap under the image */
+}
+
+.room-img {
+  width: 100%;
+  display: block;
+  border: 2px solid var(--red-dim);
+  box-shadow: 0 0 0 4px #000, 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+/* Hotspots: invisible clickable boxes over the image.
+   They are positioned with inline left/top/width/height in percentages,
+   so they track the image as it scales.
+   transform: translate(-50%, -50%) means left/top marks the CENTER of the
+   box, not its corner — so you can think "the object is at X%, Y%" and the
+   box centers itself there. */
+.hotspot {
+  position: absolute;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translate(-50%, -50%);
+}
+
+/* A small pulsing dot so you can find clickable things.
+   This is the "one real aesthetic risk" — a subtle scanline marker. */
+.hotspot-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--red-bright);
+  box-shadow: 0 0 8px 2px rgba(255, 59, 59, 0.7);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.85; transform: scale(1); }
+  50%      { opacity: 0.25; transform: scale(1.5); }
+}
+
+/* Pending hotspots: placed but not wired yet. Dimmer, no pulse —
+   so you can tell the working one (laptop) from the not-yet ones. */
+.hotspot.pending .hotspot-dot {
+  background: #8a3b3b;
+  box-shadow: 0 0 4px rgba(138, 59, 59, 0.4);
+  animation: none;
+  opacity: 0.55;
+}
+
+/* On hover (desktop), show a faint box so you see what you're clicking. */
+.hotspot:hover .hotspot-dot { opacity: 1; transform: scale(1.4); }
+.hotspot:hover {
+  outline: 1px dashed rgba(255, 59, 59, 0.6);
+  outline-offset: -2px;
+}
+
+/* ============================================================
+   Panels (the little "windows" that open)
+   ============================================================ */
+
+#panels { z-index: 30; }
+
+.panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(90vw, 460px);
+  max-height: 80vh;
+  background: var(--panel-bg);
+  border: 2px solid var(--red);
+  box-shadow: 0 0 0 4px #000, 0 0 30px rgba(209, 26, 26, 0.35),
+              0 20px 50px rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-body);
+  z-index: 30;
+  animation: pop-in .18s ease;
+}
+
+/* A "backdrop" that darkens the room behind the panel. Added by JS. */
+.panel-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 25;
+}
+
+@keyframes pop-in {
+  from { opacity: 0; transform: translate(-50%, -48%) scale(0.96); }
+  to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+.panel-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: var(--red);
+  color: #fff;
+}
+
+.panel-title {
+  font-family: var(--font-head);
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+.panel-close {
+  font-family: var(--font-head);
+  font-size: 12px;
+  background: transparent;
+  border: 1px solid #fff;
+  color: #fff;
+  width: 26px;
+  height: 26px;
+  cursor: pointer;
+  line-height: 1;
+}
+.panel-close:hover { background: #fff; color: var(--red); }
+
+.panel-body {
+  padding: 18px 18px 22px;
+  overflow-y: auto;
+}
+
+.panel-list { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+
+.list-label {
+  display: block;
+  font-family: var(--font-head);
+  font-size: 11px;
+  color: var(--red-bright);
+  margin-bottom: 4px;
+}
+.list-desc {
+  display: block;
+  font-size: 18px;
+  color: var(--text);
+}
+
+/* ============================================================
+   Desktop tweaks (>= 768px)
+   Splash becomes a fixed overlay so the room sits behind it, faintly.
+   ============================================================ */
+
+@media (min-width: 768px) {
+  #splash {
+    position: fixed;
+    inset: 0;
+    /* semi-transparent: the room shows faintly behind the click-to-enter */
+    background: rgba(8, 4, 4, 0.86);
+    backdrop-filter: blur(2px);
+  }
+
+  #stage { padding-top: 6vh; }
+
+  .room { max-width: var(--room-max); }
+
+  .panel { width: min(70vw, 520px); }
+}

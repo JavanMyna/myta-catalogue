@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MitaCatalogue</title>
+
+  <!-- Favicon (copied from the old MynaCatalogue project) -->
+  <link rel="icon" href="favicon/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon/favicon-16x16.png" />
+  <link rel="apple-touch-icon" href="favicon/apple-touch-icon.png" />
+  <link rel="manifest" href="favicon/site.webmanifest" />
+
+  <!-- Pixel fonts: chunky one for headers/labels, readable one for body text -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pixelify+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ===== Splash / click-to-enter =====
+       On mobile: this is a tall block in normal flow, the room sits below it.
+       On desktop: this becomes a fixed overlay; the room shows faintly behind it.
+       Clicking it unlocks audio (browsers block autoplay until a user gesture). -->
+  <div id="splash" role="button" tabindex="0" aria-label="Click to enter">
+    <div class="splash-inner">
+      <h1 class="splash-title">MitaCatalogue</h1>
+      <p class="splash-sub">[ click to enter ]</p>
+      <p class="splash-hint">headphones recommended</p>
+    </div>
+  </div>
+
+  <!-- ===== The room =====
+       The image is the room. Hotspots are invisible boxes positioned with
+       percentages over the image, so they stay aligned at any screen size. -->
+  <main id="stage">
+    <div class="room" id="room">
+      <img class="room-img" src="mainPic.jpg" alt="Fred's room shelf" />
+
+      <!-- ===== Hotspots =====
+           Positions are CENTER points (% from left, % from top) of the image.
+           CSS transform: translate(-50%, -50%) centers each box on that point.
+           Only the laptop opens a panel right now (Phase 1). The rest are
+           placed so you can confirm they sit on the right objects before
+           Phase 2 wires them up. Clicking a pending one does nothing (no error).
+
+           To nudge a hotspot, change its left/top in the style attribute.
+           To resize, change width/height. -->
+
+      <!-- ===== WORKING hotspots (open a panel) ===== -->
+
+      <!-- Laptop -> Projects panel (WORKS in Phase 1) -->
+      <button type="button" class="hotspot"
+              data-panel="panel-projects"
+              style="left: 72%; top: 46.4%; width: 16%; height: 12%;"
+              aria-label="Open Projects" title="Projects (laptop)">
+        <span class="hotspot-dot"></span>
+      </button>
+
+      <!-- ===== PENDING hotspots (Phase 2 will wire these up) =====
+           Hover on desktop shows a tooltip with the name. -->
+
+      <!-- REPLACE: sompoton -> music composition panel -->
+      <button type="button" class="hotspot pending"
+              style="left: 34%; top: 43%; width: 6%; height: 16%;"
+              aria-label="Music composition (pending)" title="Music composition (sompoton)">
+        <span class="hotspot-dot"></span>
+      </button>
+
+      <!-- REPLACE: certificate -> certificates/achievements panel (NEW, split from about-me) -->
+      <button type="button" class="hotspot pending"
+              style="left: 26.4%; top: 45%; width: 12%; height: 13%;"
+              aria-label="Certificates/Achievements (pending)" title="Certificates / Achievements">
+        <span class="hotspot-dot"></span>
+      </button>
+
+      <!-- REPLACE: clock -> future functioning-clock view (NEW, not built yet) -->
+      <button type="button" class="hotspot pending"
+              style="left: 17.3%; top: 51.4%; width: 10%; height: 4.5%;"
+              aria-label="Clock (future project)" title="Clock (future project)">
+        <span class="hotspot-dot"></span>
+      </button>
+
+      <!-- REPLACE: sketchbook -> drawings panel -->
+      <button type="button" class="hotspot pending"
+              style="left: 47.8%; top: 46%; width: 19%; height: 13.5%;"
+              aria-label="Drawings (pending)" title="Drawings (sketchbook)">
+        <span class="hotspot-dot"></span>
+      </button>
+
+      <!-- REPLACE: about-me item -> about-me panel (NOT the certificate) -->
+      <button type="button" class="hotspot pending"
+              style="left: 21.2%; top: 62%; width: 16%; height: 10%;"
+              aria-label="About me (pending)" title="About me">
+        <span class="hotspot-dot"></span>
+      </button>
+
+      <!-- REPLACE: journal item -> journal panel -->
+      <button type="button" class="hotspot pending"
+              style="left: 21.5%; top: 74%; width: 16%; height: 10%;"
+              aria-label="Journal (pending)" title="Journal">
+        <span class="hotspot-dot"></span>
+      </button>
+
+      <!-- REPLACE: books -> books I've read panel -->
+      <button type="button" class="hotspot pending"
+              style="left: 20.8%; top: 84.9%; width: 17%; height: 10%;"
+              aria-label="Books (pending)" title="Books I've read">
+        <span class="hotspot-dot"></span>
+      </button>
+
+      <!-- REPLACE: camera -> photography gallery -->
+      <button type="button" class="hotspot pending"
+              style="left: 73.3%; top: 62%; width: 16%; height: 10%;"
+              aria-label="Photo gallery (pending)" title="Photo gallery (camera)">
+        <span class="hotspot-dot"></span>
+      </button>
+
+      <!-- ===== TODO hotspots (intentionally do nothing yet, no error) ===== -->
+
+      <!-- TODO 1: colored pens - intentionally does nothing yet -->
+      <button type="button" class="hotspot pending"
+              style="left: 73.4%; top: 73.3%; width: 16%; height: 10%;"
+              aria-label="Colored pens (TODO)" title="TODO: colored pens">
+        <span class="hotspot-dot"></span>
+      </button>
+
+      <!-- TODO 2: empty support/leg area - intentionally does nothing yet -->
+      <button type="button" class="hotspot pending"
+              style="left: 74%; top: 84.5%; width: 16%; height: 10%;"
+              aria-label="Empty area (TODO)" title="TODO: empty area">
+        <span class="hotspot-dot"></span>
+      </button>
+    </div>
+  </main>
+
+  <!-- ===== Panels =====
+       Each panel is a hidden "window". A hotspot with data-panel="panel-id"
+       opens the matching one. Close button hides it again. -->
+  <div id="panels">
+
+    <!-- Projects panel (the laptop screen) -->
+    <!-- REPLACE: projects list -->
+    <section class="panel" id="panel-projects" role="dialog" aria-modal="true" aria-labelledby="panel-projects-title" hidden>
+      <div class="panel-bar">
+        <span class="panel-title" id="panel-projects-title">Projects</span>
+        <button type="button" class="panel-close" data-close aria-label="Close panel">x</button>
+      </div>
+      <div class="panel-body">
+        <ul class="panel-list">
+          <!-- REPLACE: project entries -->
+          <li>
+            <span class="list-label">JBC Catalogue</span>
+            <span class="list-desc">Description goes here.</span>
+          </li>
+          <li>
+            <span class="list-label">Game</span>
+            <span class="list-desc">Description goes here.</span>
+          </li>
+          <li>
+            <span class="list-label">PSPM Analysis</span>
+            <span class="list-desc">Description goes here.</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Background OST. Started on splash click. Not looped. -->
+  <audio id="ost" src="assets/music/dazed.mp3" preload="auto"></audio>
+
+  <script src="script.js"></script>
+</body>
+</html>
