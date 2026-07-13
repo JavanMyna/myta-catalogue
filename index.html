@@ -52,6 +52,24 @@
 
       <!-- ===== WORKING hotspots (open a panel) ===== -->
 
+      <!-- Beach photo (on wall) -> "my life" gallery (cats + people) -->
+      <!-- Position from Fred's earlier list; nudge if needed. -->
+      <button type="button" class="hotspot"
+              data-panel="panel-life"
+              style="left: 35%; top: 17%; width: 12%; height: 10%;"
+              aria-label="Open My life gallery" title="My life (beach photo)">
+        <span class="hotspot-dot"></span>
+      </button>
+
+      <!-- Corkboard (top right) -> full drawing board image -->
+      <!-- Position from Fred's earlier list; nudge if needed. -->
+      <button type="button" class="hotspot"
+              data-panel="panel-corkboard"
+              style="left: 90%; top: 16%; width: 18%; height: 14%;"
+              aria-label="Open the whole board" title="The whole board (corkboard)">
+        <span class="hotspot-dot"></span>
+      </button>
+
       <!-- Laptop -> Projects panel (WORKS in Phase 1) -->
       <button type="button" class="hotspot"
               data-panel="panel-projects"
@@ -63,59 +81,67 @@
       <!-- ===== PENDING hotspots (Phase 2 will wire these up) =====
            Hover on desktop shows a tooltip with the name. -->
 
-      <!-- REPLACE: sompoton -> music composition panel -->
-      <button type="button" class="hotspot pending"
+      <!-- Music composition (sompoton) -> music panel -->
+      <button type="button" class="hotspot"
+              data-panel="panel-music"
               style="left: 34%; top: 43%; width: 6%; height: 16%;"
-              aria-label="Music composition (pending)" title="Music composition (sompoton)">
+              aria-label="Open Music composition" title="Music composition (sompoton)">
         <span class="hotspot-dot"></span>
       </button>
 
-      <!-- REPLACE: certificate -> certificates/achievements panel (NEW, split from about-me) -->
-      <button type="button" class="hotspot pending"
+      <!-- Certificates / Achievements -> certificates panel -->
+      <button type="button" class="hotspot"
+              data-panel="panel-certificates"
               style="left: 26.4%; top: 45%; width: 12%; height: 13%;"
-              aria-label="Certificates/Achievements (pending)" title="Certificates / Achievements">
+              aria-label="Open Certificates / Achievements" title="Certificates / Achievements">
         <span class="hotspot-dot"></span>
       </button>
 
-      <!-- REPLACE: clock -> future functioning-clock view (NEW, not built yet) -->
-      <button type="button" class="hotspot pending"
+      <!-- Clock -> clock panel (placeholder; functioning clock is a future project) -->
+      <button type="button" class="hotspot"
+              data-panel="panel-clock"
               style="left: 17.3%; top: 51.4%; width: 10%; height: 4.5%;"
-              aria-label="Clock (future project)" title="Clock (future project)">
+              aria-label="Open Clock" title="Clock (future project)">
         <span class="hotspot-dot"></span>
       </button>
 
-      <!-- REPLACE: sketchbook -> drawings panel -->
-      <button type="button" class="hotspot pending"
+      <!-- Drawings (sketchbook) -> drawings panel -->
+      <button type="button" class="hotspot"
+              data-panel="panel-drawings"
               style="left: 47.8%; top: 46%; width: 19%; height: 13.5%;"
-              aria-label="Drawings (pending)" title="Drawings (sketchbook)">
+              aria-label="Open Drawings" title="Drawings (sketchbook)">
         <span class="hotspot-dot"></span>
       </button>
 
-      <!-- REPLACE: about-me item -> about-me panel (NOT the certificate) -->
-      <button type="button" class="hotspot pending"
+      <!-- About me -> about panel -->
+      <button type="button" class="hotspot"
+              data-panel="panel-about"
               style="left: 21.2%; top: 62%; width: 16%; height: 10%;"
-              aria-label="About me (pending)" title="About me">
+              aria-label="Open About me" title="About me">
         <span class="hotspot-dot"></span>
       </button>
 
-      <!-- REPLACE: journal item -> journal panel -->
-      <button type="button" class="hotspot pending"
+      <!-- Journal -> journal panel -->
+      <button type="button" class="hotspot"
+              data-panel="panel-journal"
               style="left: 21.5%; top: 74%; width: 16%; height: 10%;"
-              aria-label="Journal (pending)" title="Journal">
+              aria-label="Open Journal" title="Journal">
         <span class="hotspot-dot"></span>
       </button>
 
-      <!-- REPLACE: books -> books I've read panel -->
-      <button type="button" class="hotspot pending"
+      <!-- Books I've read -> books panel -->
+      <button type="button" class="hotspot"
+              data-panel="panel-books"
               style="left: 20.8%; top: 84.9%; width: 17%; height: 10%;"
-              aria-label="Books (pending)" title="Books I've read">
+              aria-label="Open Books I've read" title="Books I've read">
         <span class="hotspot-dot"></span>
       </button>
 
-      <!-- REPLACE: camera -> photography gallery -->
-      <button type="button" class="hotspot pending"
+      <!-- Photography gallery (camera) -> photos panel -->
+      <button type="button" class="hotspot"
+              data-panel="panel-photos"
               style="left: 73.3%; top: 62%; width: 16%; height: 10%;"
-              aria-label="Photo gallery (pending)" title="Photo gallery (camera)">
+              aria-label="Open Photo gallery" title="Photo gallery (camera)">
         <span class="hotspot-dot"></span>
       </button>
 
@@ -168,6 +194,297 @@
       </div>
     </section>
 
+    <!-- Music composition panel (sompoton) -->
+    <!-- REPLACE: track list. Files live in assets/music/. To add more, drop
+         a file in that folder and copy a <li> block below. -->
+    <section class="panel" id="panel-music" role="dialog" aria-modal="true" aria-labelledby="panel-music-title" hidden>
+      <div class="panel-bar">
+        <span class="panel-title" id="panel-music-title">Music</span>
+        <button type="button" class="panel-close" data-close aria-label="Close panel">x</button>
+      </div>
+      <div class="panel-body">
+        <!-- REPLACE: instruments blurb -->
+        <p class="panel-intro">stuff I've written</p>
+        <p class="music-bio">I play <strong>Sundatang</strong> and <strong>Sompoton</strong> (traditional instruments), and <strong>Guitar</strong>.</p>
+
+        <ul class="panel-list music-list">
+          <!-- REPLACE: track entries. <audio controls> gives a play button.
+               loading="lazy" on the audio means it only loads when the panel opens. -->
+          <li>
+            <span class="list-label">dazed</span>
+            <audio controls preload="none" src="assets/music/dazed.mp3"></audio>
+          </li>
+          <li>
+            <span class="list-label">deadpool_bag2</span>
+            <audio controls preload="none" src="assets/music/deadpool_bag2.mp3"></audio>
+          </li>
+          <li>
+            <span class="list-label">dfordustbin</span>
+            <audio controls preload="none" src="assets/music/dfordustbin.mp3"></audio>
+          </li>
+          <li>
+            <span class="list-label">Fy,IbnG</span>
+            <audio controls preload="none" src="assets/music/Fy,IbnG.mp3"></audio>
+          </li>
+          <li>
+            <span class="list-label">l&amp;m</span>
+            <audio controls preload="none" src="assets/music/l&m.mp3"></audio>
+          </li>
+          <li>
+            <span class="list-label">lifeline</span>
+            <audio controls preload="none" src="assets/music/lifeline.mp3"></audio>
+          </li>
+          <li>
+            <span class="list-label">lyna</span>
+            <audio controls preload="none" src="assets/music/lyna.mp3"></audio>
+          </li>
+          <li>
+            <span class="list-label">manyafication</span>
+            <audio controls preload="none" src="assets/music/manyafication.mp3"></audio>
+          </li>
+          <li>
+            <span class="list-label">P(Xr), nCrP^nQ^n-r, PQ1</span>
+            <audio controls preload="none" src="assets/music/P(Xr), nCrP^nQ^n-r, PQ1.mp3"></audio>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Certificates / Achievements panel -->
+    <!-- REPLACE: certificate entries -->
+    <section class="panel" id="panel-certificates" role="dialog" aria-modal="true" aria-labelledby="panel-certificates-title" hidden>
+      <div class="panel-bar">
+        <span class="panel-title" id="panel-certificates-title">Certificates</span>
+        <button type="button" class="panel-close" data-close aria-label="Close panel">x</button>
+      </div>
+      <div class="panel-body">
+        <ul class="panel-list">
+          <!-- REPLACE: certificate entries -->
+          <li>
+            <span class="list-label">Certificate name</span>
+            <span class="list-desc">Year / issuer.</span>
+          </li>
+          <li>
+            <span class="list-label">Achievement name</span>
+            <span class="list-desc">Year / context.</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Clock panel (placeholder — functioning clock is a future project) -->
+    <!-- REPLACE: functioning clock. For now this is a "coming soon" stub. -->
+    <section class="panel" id="panel-clock" role="dialog" aria-modal="true" aria-labelledby="panel-clock-title" hidden>
+      <div class="panel-bar">
+        <span class="panel-title" id="panel-clock-title">Clock</span>
+        <button type="button" class="panel-close" data-close aria-label="Close panel">x</button>
+      </div>
+      <div class="panel-body">
+        <p class="panel-intro">A functioning clock will live here one day.</p>
+        <p class="panel-stub">[ coming later ]</p>
+      </div>
+    </section>
+
+    <!-- Drawings panel (sketchbook) -->
+    <!-- REPLACE: add more <img class="panel-thumb"> lines. Files in assets/art/. -->
+    <section class="panel" id="panel-drawings" role="dialog" aria-modal="true" aria-labelledby="panel-drawings-title" hidden>
+      <div class="panel-bar">
+        <span class="panel-title" id="panel-drawings-title">Drawings</span>
+        <button type="button" class="panel-close" data-close aria-label="Close panel">x</button>
+      </div>
+      <div class="panel-body">
+        <p class="panel-intro">sketchbook pages and pieces</p>
+        <div class="panel-grid">
+          <!-- loading="lazy" = browser only loads each image as you scroll to it,
+               so opening the panel is fast even with many big files. -->
+          <img class="panel-thumb" loading="lazy" src="assets/art/antformicidae.jpg" alt="antformicidae">
+          <img class="panel-thumb" loading="lazy" src="assets/art/art_2024sukanDay.jpg" alt="sukan day 2024">
+          <img class="panel-thumb" loading="lazy" src="assets/art/art_classmate01.jpg" alt="classmate 1">
+          <img class="panel-thumb" loading="lazy" src="assets/art/art_classmate02.jpg" alt="classmate 2">
+          <img class="panel-thumb" loading="lazy" src="assets/art/art_kmlcat.jpg" alt="kml cat">
+          <img class="panel-thumb" loading="lazy" src="assets/art/art_kmlPoster.jpg" alt="kml poster">
+          <img class="panel-thumb" loading="lazy" src="assets/art/art_miko.jpg" alt="miko">
+          <img class="panel-thumb" loading="lazy" src="assets/art/art_perspectiveBed.jpg" alt="perspective: bed">
+          <img class="panel-thumb" loading="lazy" src="assets/art/art_perspectiveBedroom.jpg" alt="perspective: bedroom">
+          <img class="panel-thumb" loading="lazy" src="assets/art/art_perspectiveLivingroom.jpg" alt="perspective: living room">
+          <img class="panel-thumb" loading="lazy" src="assets/art/art_pov01.jpg" alt="pov 01">
+          <img class="panel-thumb" loading="lazy" src="assets/art/art_ringo.jpg" alt="ringo">
+          <img class="panel-thumb" loading="lazy" src="assets/art/art_rkgk01.jpg" alt="rkgk 01">
+          <img class="panel-thumb" loading="lazy" src="assets/art/art_rkgk02.jpg" alt="rkgk 02">
+          <img class="panel-thumb" loading="lazy" src="assets/art/art_rkgk03.jpg" alt="rkgk 03">
+          <img class="panel-thumb" loading="lazy" src="assets/art/art_rkgk04.jpg" alt="rkgk 04">
+          <img class="panel-thumb" loading="lazy" src="assets/art/comic_chineseHumor.jpg" alt="comic: chinese humor">
+        </div>
+      </div>
+    </section>
+
+    <!-- About me panel -->
+    <!-- REPLACE: about-me text -->
+    <section class="panel" id="panel-about" role="dialog" aria-modal="true" aria-labelledby="panel-about-title" hidden>
+      <div class="panel-bar">
+        <span class="panel-title" id="panel-about-title">About</span>
+        <button type="button" class="panel-close" data-close aria-label="Close panel">x</button>
+      </div>
+      <div class="panel-body">
+        <!-- REPLACE: about-me text -->
+        <p>A few sentences about yourself.</p>
+        <p>What you do, what you care about, where to find you.</p>
+      </div>
+    </section>
+
+    <!-- Journal panel — short posts, informal "talking to whoever's reading" tone -->
+    <!-- REPLACE: journal posts. Add more <article class="post"> blocks. -->
+    <section class="panel" id="panel-journal" role="dialog" aria-modal="true" aria-labelledby="panel-journal-title" hidden>
+      <div class="panel-bar">
+        <span class="panel-title" id="panel-journal-title">Journal</span>
+        <button type="button" class="panel-close" data-close aria-label="Close panel">x</button>
+      </div>
+      <div class="panel-body">
+        <!-- REPLACE: journal posts -->
+        <article class="post">
+          <header class="post-date">YYYY-MM-DD</header>
+          <p>Short informal post. Say whatever you'd say to someone who wandered in.</p>
+        </article>
+        <article class="post">
+          <header class="post-date">YYYY-MM-DD</header>
+          <p>Another short post.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- Books I've read panel -->
+    <!-- REPLACE: book entries. Two real examples included to start. -->
+    <section class="panel" id="panel-books" role="dialog" aria-modal="true" aria-labelledby="panel-books-title" hidden>
+      <div class="panel-bar">
+        <span class="panel-title" id="panel-books-title">Books</span>
+        <button type="button" class="panel-close" data-close aria-label="Close panel">x</button>
+      </div>
+      <div class="panel-body">
+        <ul class="panel-list">
+          <!-- REPLACE: add more book entries below -->
+          <li>
+            <span class="list-label">A Man Against Thee</span>
+            <span class="list-desc">manhwa</span>
+          </li>
+          <li>
+            <span class="list-label">The Book Thief</span>
+            <span class="list-desc">book — Markus Zusak</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Photography panel (camera) -> "not my life" = environment -->
+    <!-- REPLACE: add more <img class="panel-thumb"> lines. Files in assets/photography/environment/. -->
+    <section class="panel" id="panel-photos" role="dialog" aria-modal="true" aria-labelledby="panel-photos-title" hidden>
+      <div class="panel-bar">
+        <span class="panel-title" id="panel-photos-title">Photos</span>
+        <button type="button" class="panel-close" data-close aria-label="Close panel">x</button>
+      </div>
+      <div class="panel-body">
+        <p class="panel-intro">photography - environment</p>
+        <div class="panel-grid">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/environment/cloud01.jpg" alt="cloud 01">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/environment/cloud02.jpg" alt="cloud 02">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/environment/cloud03.jpg" alt="cloud 03">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/environment/cloud04.jpg" alt="cloud 04">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/environment/cloud05.jpg" alt="cloud 05">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/environment/doulosHope.jpg" alt="doulos hope">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/environment/IMG_20260710_083024.jpg" alt="2026-07-10">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/environment/JBC_display.jpg" alt="jbc display">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/environment/myGuitar.jpg" alt="my guitar">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/environment/panda_miniature.jpg" alt="panda miniature">
+        </div>
+      </div>
+    </section>
+
+    <!-- "My life" gallery (beach photo) -> cats + people, two stacked sections -->
+    <!-- REPLACE: add more <img class="panel-thumb"> lines under either section. -->
+    <section class="panel" id="panel-life" role="dialog" aria-modal="true" aria-labelledby="panel-life-title" hidden>
+      <div class="panel-bar">
+        <span class="panel-title" id="panel-life-title">My life</span>
+        <button type="button" class="panel-close" data-close aria-label="Close panel">x</button>
+      </div>
+      <div class="panel-body">
+        <p class="panel-intro">cats &amp; people</p>
+
+        <!-- Cats section -->
+        <h2 class="gallery-section">cats</h2>
+        <div class="panel-grid">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/cats/kml_cat01.jpg" alt="kml cat 01">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/cats/mango01.jpg" alt="mango 01">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/cats/mango02.jpg" alt="mango 02">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/cats/mango03.jpg" alt="mango 03">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/cats/mango04.jpg" alt="mango 04">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/cats/miko01.jpg" alt="miko 01">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/cats/miko02.jpg" alt="miko 02">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/cats/miko03.jpg" alt="miko 03">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/cats/miko04.jpg" alt="miko 04">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/cats/miko05.jpg" alt="miko 05">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/cats/miko06.jpg" alt="miko 06">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/cats/miko07.jpg" alt="miko 07">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/cats/miko08.jpg" alt="miko 08">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/cats/miko09.jpg" alt="miko 09">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/cats/miko10.jpg" alt="miko 10">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/cats/miko11.jpg" alt="miko 11">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/cats/miko12.jpg" alt="miko 12">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/cats/miko13.jpg" alt="miko 13">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/cats/miko14.jpg" alt="miko 14">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/cats/miko15.jpg" alt="miko 15">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/cats/mita01.jpg" alt="mita 01">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/cats/mita02.jpg" alt="mita 02">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/cats/mita03.jpg" alt="mita 03">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/cats/mm01.jpg" alt="mm 01">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/cats/mm02.jpg" alt="mm 02">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/cats/mm03.jpg" alt="mm 03">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/cats/mm04.jpg" alt="mm 04">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/cats/mm05.jpg" alt="mm 05">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/cats/mm06.jpg" alt="mm 06">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/cats/mm07.jpg" alt="mm 07">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/cats/mm08.jpg" alt="mm 08">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/cats/mm09.jpg" alt="mm 09">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/cats/mm10.jpg" alt="mm 10">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/cats/mm11.jpg" alt="mm 11">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/cats/mmt01.jpg" alt="mmt 01">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/cats/mmt02.jpg" alt="mmt 02">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/cats/mmt03.jpg" alt="mmt 03">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/cats/mmt04.jpg" alt="mmt 04">
+        </div>
+
+        <!-- People section -->
+        <h2 class="gallery-section">people</h2>
+        <div class="panel-grid">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/people/anthonny01.jpg" alt="anthonny 01">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/people/fred01.jpg" alt="fred 01">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/people/fred02.jpg" alt="fred 02">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/people/fred03.jpg" alt="fred 03">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/people/fred04.jpg" alt="fred 04">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/people/guitar_friends.jpg" alt="guitar friends">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/people/JBC_vendor.jpg" alt="jbc vendor">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/people/spm_nostalgia.jpg" alt="spm nostalgia">
+          <img class="panel-thumb" loading="lazy" src="assets/photography/people/with_lilbro.jpg" alt="with lilbro">
+        </div>
+      </div>
+    </section>
+
+    <!-- Corkboard panel -> full view of the whole drawing board -->
+    <section class="panel" id="panel-corkboard" role="dialog" aria-modal="true" aria-labelledby="panel-corkboard-title" hidden>
+      <div class="panel-bar">
+        <span class="panel-title" id="panel-corkboard-title">The board</span>
+        <button type="button" class="panel-close" data-close aria-label="Close panel">x</button>
+      </div>
+      <div class="panel-body panel-body-img">
+        <img class="full-img" src="corkBoard.jpg" alt="The whole corkboard / drawing board">
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ===== Lightbox (full image view) =====
+       A hidden overlay that shows a clicked thumbnail at full size.
+       JS fills the <img src> and unhides it; clicking the dark area or Esc closes. -->
+  <div id="lightbox" hidden>
+    <img src="" alt="" />
   </div>
 
   <!-- Background OST. Started on splash click. Not looped. -->

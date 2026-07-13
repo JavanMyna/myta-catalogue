@@ -104,9 +104,77 @@
     closePanel(panel);
   });
 
-  // Close the currently visible panel on Esc.
+  // ---- 4) Lightbox: click a thumbnail -> show the full image -----------
+  var lightbox = document.getElementById("lightbox");
+  var lightboxImg = lightbox ? lightbox.querySelector("img") : null;
+
+  // "Event delegation" again: one listener on the panels wrapper catches
+  // clicks on any thumbnail inside any panel — including ones we add later.
+  panelsWrap.addEventListener("click", function (e) {
+    var thumb = e.target.closest("img.panel-thumb");
+    if (!thumb) return;
+    lightboxImg.src = thumb.src;
+    lightboxImg.alt = thumb.alt;
+    lightbox.hidden = false;
+  });
+
+  function closeLightbox() {
+    if (!lightbox) return;
+    lightbox.hidden = true;
+    // Clear src so the big image is dropped from memory, not just hidden.
+    lightboxImg.src = "";
+    lightboxImg.alt = "";
+  }
+
+  // Click the dark backdrop closes the lightbox. Click on the image itself
+  // does NOT close (cursor: default on the img tells the user this).
+  lightbox.addEventListener("click", function (e) {
+    if (e.target === lightboxImg) return;
+    closeLightbox();
+  });
+
+  // ---- 5) Fade the main OST out when a music-panel track plays ---------
+  // requestAnimationFrame runs a function once per screen redraw (~60×/sec),
+  // which makes smooth volume fades without jerky timers.
+  function fadeOutAndPause(audio, durationMs) {
+    if (!audio || audio.paused) return; // already silent / paused: nothing to do
+    var startVol = audio.volume;
+    var start = performance.now();      // ms timestamp for math
+
+    function step(now) {
+      var t = (now - start) / durationMs;     // 0 -> 1 over the fade duration
+      if (t >= 1) {
+        audio.volume = 0;
+        audio.pause();
+        audio.volume = startVol;              // reset for any future replay
+        return;
+      }
+      audio.volume = startVol * (1 - t);      // ease volume toward 0
+      requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  var musicPanel = document.getElementById("panel-music");
+
+  // "play" events don't bubble up the DOM, so we listen in the CAPTURE phase
+  // (the "going down" phase) to catch them at the panel level. Fires once per
+  // track because <audio> only fires "play" when it actually starts.
+  if (musicPanel) {
+    musicPanel.addEventListener("play", function (e) {
+      if (e.target.tagName === "AUDIO") {
+        // Fade the OST over 3 seconds, then it pauses itself.
+        // The clicked track keeps playing normally.
+        fadeOutAndPause(ost, 3000);
+      }
+    }, true); // <-- true = capture phase
+  }
+
+  // ---- Esc closes whichever is open (panel OR lightbox) ---------------
+  // Lightbox takes priority since it sits on top.
   document.addEventListener("keydown", function (e) {
     if (e.key !== "Escape") return;
+    if (lightbox && !lightbox.hidden) { closeLightbox(); return; }
     var open = panelsWrap.querySelector(".panel:not([hidden])");
     if (open) closePanel(open);
   });

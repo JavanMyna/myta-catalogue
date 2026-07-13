@@ -264,6 +264,143 @@ body::before {
   color: var(--text);
 }
 
+/* ----- Text blocks (about me, intros, stubs) ----- */
+.panel-body p { margin-bottom: 12px; }
+.panel-body p:last-child { margin-bottom: 0; }
+
+.panel-intro {
+  font-family: var(--font-head);
+  font-size: 10px;
+  color: var(--red-bright);
+  margin-bottom: 16px;
+}
+
+/* "coming soon" style for the clock stub */
+.panel-stub {
+  font-family: var(--font-head);
+  font-size: 10px;
+  color: var(--red-dim);
+  text-align: center;
+  padding: 20px 0;
+}
+
+/* ----- Image grids (drawings, photos) ----- */
+/* CSS Grid: auto-fill makes as many columns as fit, each at least 90px wide.
+   The gap is the space between thumbnails. */
+.panel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 8px;
+}
+
+/* Square thumbnail box. The aspect-ratio + width:100% gives every cell a
+   definite square shape, no matter the original image's dimensions. */
+.panel-thumb {
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  height: 100%;
+  background: #2a0d0d;
+  border: 1px solid var(--red-dim);
+  overflow: hidden;
+  display: block;
+}
+.panel-thumb:hover { border-color: var(--red); }
+
+/* Placeholder <div class="panel-thumb">img</div>: center the "img" text */
+div.panel-thumb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-head);
+  font-size: 9px;
+  color: var(--red-dim);
+}
+
+/* Real <img class="panel-thumb">: crop to fill the square (no stretching).
+   object-fit: cover = fill the box, cropping overflow. */
+img.panel-thumb {
+  object-fit: cover;
+  cursor: zoom-in;                /* hint that clicking opens the full image */
+  padding: 0;
+  background: #000;
+}
+
+/* ----- Lightbox (full image view) ----- */
+#lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 40;                    /* above panels (30) and backdrops (25) */
+  cursor: zoom-out;
+  padding: 20px;
+}
+#lightbox img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;            /* show the WHOLE image, no crop */
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+  cursor: default;                /* clicks on the image itself don't close */
+}
+
+/* ----- Journal posts ----- */
+.post {
+  margin-bottom: 22px;
+  padding-bottom: 18px;
+  border-bottom: 1px dashed var(--red-dim);
+}
+.post:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+.post-date {
+  font-family: var(--font-head);
+  font-size: 9px;
+  color: var(--red-bright);
+  margin-bottom: 8px;
+}
+
+/* ----- Gallery section headings (cats / people) ----- */
+.gallery-section {
+  font-family: var(--font-head);
+  font-size: 11px;
+  color: var(--red-bright);
+  margin: 18px 0 10px;
+  letter-spacing: 1px;
+}
+.gallery-section:first-of-type { margin-top: 0; }
+
+/* ----- Music panel: bio line + audio players ----- */
+.music-bio {
+  font-size: 18px;
+  margin-bottom: 18px;
+  color: var(--text);
+}
+.music-bio strong { color: var(--red-bright); font-weight: 700; }
+
+.music-list li { margin-bottom: 14px; }
+.music-list .list-label { margin-bottom: 6px; }
+
+/* <audio controls> is the browser's built-in audio player. We just make it
+   fill the panel width and dark-ify it a little. */
+audio {
+  width: 100%;
+  height: 34px;
+}
+
+/* ----- Full-image panel (corkboard) ----- */
+/* This panel body drops the padding so the image can fill it edge to edge. */
+.panel-body-img { padding: 0; }
+
+.full-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 78vh;          /* keep it inside the viewport */
+  object-fit: contain;       /* show the whole image, don't crop */
+  background: #000;
+}
+
 /* ============================================================
    Desktop tweaks (>= 768px)
    Splash becomes a fixed overlay so the room sits behind it, faintly.
