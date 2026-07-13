@@ -30,6 +30,19 @@
 
 html { -webkit-text-size-adjust: 100%; }
 
+/* When a panel or the lightbox is open, lock body scrolling so only the
+   panel content scrolls (not the room behind it). JS adds this class. */
+body.panel-open { overflow: hidden; }
+
+/* Custom scrollbar for panel bodies — thin red, matches the theme.
+   Only works in WebKit/Chromium browsers; Firefox falls back to default. */
+.panel-body::-webkit-scrollbar { width: 8px; }
+.panel-body::-webkit-scrollbar-track { background: #0a0404; }
+.panel-body::-webkit-scrollbar-thumb { background: var(--red-dim); }
+.panel-body::-webkit-scrollbar-thumb:hover { background: var(--red); }
+/* Firefox */
+.panel-body { scrollbar-width: thin; scrollbar-color: var(--red-dim) #0a0404; }
+
 body {
   background: var(--ink);
   color: var(--text);
@@ -127,6 +140,37 @@ body::before {
   display: block;
   border: 2px solid var(--red-dim);
   box-shadow: 0 0 0 4px #000, 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+/* CRT scanline overlay — the "one real aesthetic risk".
+   A ::after pseudo-element draws faint horizontal lines over the room image
+   for a retro CRT-screen feel. It's very low opacity so the image is still
+   clearly visible, and it doesn't touch the panels (where content lives).
+   pointer-events: none means clicks pass through it to the hotspots below. */
+.room::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0px,
+    rgba(0, 0, 0, 0) 2px,
+    rgba(0, 0, 0, 0.15) 3px,
+    rgba(0, 0, 0, 0) 4px
+  );
+  pointer-events: none;
+  z-index: 2;                     /* above the image, below hotspots */
+}
+
+/* Caption under the room (shown on desktop only; see the media query below) */
+.room-caption {
+  display: none;                  /* hidden on mobile by default */
+  font-family: var(--font-head);
+  font-size: 10px;
+  color: var(--red-dim);
+  text-align: center;
+  margin-top: 14px;
+  letter-spacing: 1px;
 }
 
 /* Hotspots: invisible clickable boxes over the image.
@@ -402,22 +446,58 @@ audio {
 }
 
 /* ============================================================
-   Desktop tweaks (>= 768px)
-   Splash becomes a fixed overlay so the room sits behind it, faintly.
+   Desktop (>= 768px)
+   The room is a tall portrait image. On a wide screen we want it to feel
+   like a deliberate centerpiece — vertically centered, sized to fit the
+   viewport height, with a caption and ambient glow. Not a phone layout
+   stretched out with empty space below.
    ============================================================ */
 
 @media (min-width: 768px) {
+  /* Splash: fixed overlay, room shows faintly behind (Fred chose this option). */
   #splash {
     position: fixed;
     inset: 0;
-    /* semi-transparent: the room shows faintly behind the click-to-enter */
     background: rgba(8, 4, 4, 0.86);
     backdrop-filter: blur(2px);
   }
 
-  #stage { padding-top: 6vh; }
+  /* Stage: vertically + horizontally center the room in the viewport.
+     flex-direction: column so the caption sits below the room. */
+  #stage {
+    min-height: 100vh;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4vh 20px;
+  }
 
-  .room { max-width: var(--room-max); }
+  /* Room: size to viewport HEIGHT (not width) since the image is portrait 3:4.
+     calc(82vh * 0.75) = "82% of screen height, times the 3/4 aspect ratio"
+     This keeps the whole room visible without scrolling on desktop.
+     max-width caps it so the image doesn't get huge on very tall screens. */
+  .room {
+    max-width: min(700px, calc(82vh * 0.75));
+  }
 
+  /* Stronger spotlight glow on desktop — makes the room feel displayed. */
+  .room-img {
+    box-shadow: 0 0 0 4px #000, 0 0 60px rgba(209, 26, 26, 0.15),
+                0 20px 60px rgba(0, 0, 0, 0.9);
+  }
+
+  /* Show the caption on desktop. */
+  .room-caption { display: block; }
+
+  /* Wider panels on desktop. */
   .panel { width: min(70vw, 520px); }
+}
+
+/* ============================================================
+   Small desktop / large tablet (768px–1024px)
+   Slightly smaller room so it doesn't dominate narrow laptop screens.
+   ============================================================ */
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .room { max-width: min(560px, calc(80vh * 0.75)); }
 }

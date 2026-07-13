@@ -76,6 +76,7 @@
 
     panel.hidden = false;     // show the panel
     backdrop.addEventListener("click", function () { closePanel(panel); });
+    updateScrollLock();
   }
 
   room.addEventListener("click", function (e) {
@@ -93,6 +94,20 @@
     if (panel._backdrop) {
       panel._backdrop.remove();
       panel._backdrop = null;
+    }
+    updateScrollLock();
+  }
+
+  // Helper: lock/unlock body scroll depending on whether anything is open.
+  // "Scroll lock" = setting overflow:hidden on <body> so the page behind a
+  // panel can't scroll on mobile. We check BOTH panels and the lightbox.
+  function updateScrollLock() {
+    var anyPanelOpen = panelsWrap.querySelector(".panel:not([hidden])");
+    var anyLightboxOpen = lightbox && !lightbox.hidden;
+    if (anyPanelOpen || anyLightboxOpen) {
+      document.body.classList.add("panel-open");
+    } else {
+      document.body.classList.remove("panel-open");
     }
   }
 
@@ -116,6 +131,7 @@
     lightboxImg.src = thumb.src;
     lightboxImg.alt = thumb.alt;
     lightbox.hidden = false;
+    updateScrollLock();
   });
 
   function closeLightbox() {
@@ -124,6 +140,7 @@
     // Clear src so the big image is dropped from memory, not just hidden.
     lightboxImg.src = "";
     lightboxImg.alt = "";
+    updateScrollLock();
   }
 
   // Click the dark backdrop closes the lightbox. Click on the image itself
@@ -157,17 +174,32 @@
 
   var musicPanel = document.getElementById("panel-music");
 
-  // "play" events don't bubble up the DOM, so we listen in the CAPTURE phase
-  // (the "going down" phase) to catch them at the panel level. Fires once per
-  // track because <audio> only fires "play" when it actually starts.
+  // When a track is pressed: pause it immediately, fade the OST over 3s,
+  // THEN start the track — so there's no overlap during the fade.
+  // A flag on the track prevents the delayed replay from re-triggering this.
   if (musicPanel) {
     musicPanel.addEventListener("play", function (e) {
-      if (e.target.tagName === "AUDIO") {
-        // Fade the OST over 3 seconds, then it pauses itself.
-        // The clicked track keeps playing normally.
-        fadeOutAndPause(ost, 3000);
+      if (e.target.tagName !== "AUDIO") return;
+      var track = e.target;
+
+      // This is our OWN delayed replay (set below) — let it play, don't intercept.
+      if (track._delayedReplay) {
+        track._delayedReplay = false;
+        return;
       }
-    }, true); // <-- true = capture phase
+
+      // User just pressed play: pause the track right away, fade the OST,
+      // then replay the track once the fade is done.
+      track.pause();
+      fadeOutAndPause(ost, 3000);
+      window.setTimeout(function () {
+        track._delayedReplay = true;
+        var p = track.play();
+        if (p && typeof p.then === "function") {
+          p.catch(function () { track._delayedReplay = false; });
+        }
+      }, 3000);
+    }, true); // <-- true = capture phase (play events don't bubble)
   }
 
   // ---- Esc closes whichever is open (panel OR lightbox) ---------------
