@@ -100,6 +100,18 @@
         <span class="hotspot-dot"></span>
       </button>
 
+      <!-- Credits plaque -> museum-style credits panel.
+           Position converted from source-image px (419, 431) on the 3060x4080
+           mainPic.jpg to % center: 13.69% left, 10.56% top — same formula used
+           for shattered-glass and visitors. Width/height are a starting guess;
+           load the site and nudge per the convention comment above. (Brief 04 §1) -->
+      <button type="button" class="hotspot"
+              data-panel="panel-credits"
+              style="left: 13.69%; top: 10.56%; width: 7%; height: 7%;"
+              aria-label="Open Credits" title="Credits">
+        <span class="hotspot-dot"></span>
+      </button>
+
       <!-- Laptop -> Projects panel (WORKS in Phase 1) -->
       <button type="button" class="hotspot"
               data-panel="panel-projects"
@@ -534,6 +546,68 @@
         <p class="panel-intro">a piece I made when I was burnt out</p>
         <p class="corkboard-desc">I made this when I was burnt out in matrics</p>
         <img class="full-img" src="assets/art/shatteredGlass.jpg" alt="Shattered Glass — made during matrics burnout">
+      </div>
+    </section>
+
+    <!-- Credits panel -> museum plaque wall.
+         Each credit is a small plaque card, grouped under two wing headings.
+         Plaques sit dim by default and a CSS-only radial "spotlight" brightens
+         them on hover/focus-within — a callback to the room's light-switch
+         mechanic scoped to this panel. (Brief 04 §2 / §3) -->
+    <section class="panel panel-credits" id="panel-credits" role="dialog" aria-modal="true" aria-labelledby="panel-credits-title" hidden>
+      <div class="panel-bar">
+        <span class="panel-title" id="panel-credits-title">Credits</span>
+        <button type="button" class="panel-close" data-close aria-label="Close panel">x</button>
+      </div>
+      <div class="panel-body">
+        <p class="panel-intro">spotlight wall</p>
+
+        <!-- Wing 1 — THE REAL ONES -->
+        <h2 class="credits-wing">THE REAL ONES</h2>
+        <ul class="plaque-wall">
+          <li class="plaque">
+            <div class="plaque-header">Anthonny</div>
+            <p class="plaque-body">best friend, taught me a lot of stuff including advanced AI</p>
+          </li>
+          <li class="plaque">
+            <div class="plaque-header">Nia</div>
+            <p class="plaque-body">artist friend, got me into music composition, also put me onto mxrza.xyz</p>
+          </li>
+        </ul>
+
+        <!-- Wing 2 — INSPIRATION.
+             TODO: per Brief 04 §2, real cover art / screenshots for the
+             ULTRAKILL and One Dreamer plaques should be self-hosted under
+             assets/credits/ (same pattern as assets/art/ and
+             assets/photography/). The encrypted-tbn0.gstatic.com URLs Fred
+             originally passed are low-res Google Images cache thumbnails
+             (note the s=10 param) and can break at any time — so they are
+             intentionally NOT wired here. Drop local files in and add
+             <img class="plaque-thumb"> lines once they exist.
+             Only mxrza.xyz has a confirmed link target — ULTRAKILL and One
+             Dreamer are left as unlinked plaques until Fred confirms a
+             destination (store page, YouTube, etc.). -->
+        <h2 class="credits-wing">INSPIRATION</h2>
+        <ul class="plaque-wall">
+          <li class="plaque">
+            <div class="plaque-header">
+              <a class="plaque-link" href="https://mxrza.xyz/" target="_blank" rel="noopener">mxrza.xyz</a>
+            </div>
+            <p class="plaque-body" data-typewriter>its computer vibe and how well made the site is.</p>
+            <!-- Native 88x31 webring badge — safe to hotlink as-is per Brief 04. -->
+            <a class="webring-badge" href="https://mxrza.xyz/" target="_blank" rel="noopener">
+              <img src="https://mxrza.xyz/mxrza.gif" alt="mxrza.xyz webring badge" width="88" height="31" loading="lazy">
+            </a>
+          </li>
+          <li class="plaque">
+            <div class="plaque-header">ULTRAKILL Credits Museum</div>
+            <p class="plaque-body" data-typewriter>the first time I saw a unique way to credit someone</p>
+          </li>
+          <li class="plaque">
+            <div class="plaque-header">One Dreamer</div>
+            <p class="plaque-body" data-typewriter>love the vibe and the music</p>
+          </li>
+        </ul>
       </div>
     </section>
 

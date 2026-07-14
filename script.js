@@ -373,6 +373,10 @@
 
     // Feature 2: lazily fetch the live visitor count when this panel opens.
     if (id === "panel-visitors") loadVisitorCount();
+    // Brief 04 §4: one-time typewriter reveal on the INSPIRATION wing
+    // descriptions when the credits panel first opens — echoes mxrza.xyz's
+    // "computer vibe". Session-guarded so it runs at most once per page load.
+    if (id === "panel-credits") runCreditsTypewriter();
   }
 
   room.addEventListener("click", function (e) {
@@ -606,6 +610,59 @@
   }
 
   renderTimeline();
+
+  // ---- 6c) Credits typewriter (Brief 04 §4) -----------------------------
+  // A one-time (per session) typewriter reveal on the INSPIRATION wing
+  // plaque descriptions when the credits panel first opens. Echoes
+  // mxrza.xyz's "computer vibe" without being looped or gimmicky. Targets
+  // are the <p class="plaque-body" data-typewriter> elements — the full text
+  // is captured from the DOM at run time so there's one source of truth
+  // (the HTML), and the CSS min-height on .plaque-body keeps the plaque
+  // from reflowing as characters stream in.
+  //
+  // Session guard (creditsTypewritered) means it fires at most once even if
+  // the user closes and reopens the panel. If the user closes mid-type the
+  // setTimeout chain keeps draining into the hidden element, so by the next
+  // open the text is guaranteed to be complete.
+  var creditsTypewritered = false;
+
+  function runCreditsTypewriter() {
+    if (creditsTypewritered) return;
+    var panel = document.getElementById("panel-credits");
+    if (!panel) return;
+    var targets = Array.prototype.slice.call(panel.querySelectorAll("[data-typewriter]"));
+    if (!targets.length) { creditsTypewritered = true; return; }
+    creditsTypewritered = true;
+
+    // Stash the full string on each target so a future call (e.g. if the guard
+    // were ever removed) wouldn't read a half-typed value as the source.
+    targets.forEach(function (el) {
+      if (!el.getAttribute("data-full")) el.setAttribute("data-full", el.textContent);
+    });
+
+    var TYPE_MS = 26;     // per character — mxrza-style brisk, not theater-slow
+    var GAP_MS = 140;     // pause between plaques
+
+    function typeEl(el, done) {
+      var full = el.getAttribute("data-full");
+      el.textContent = "";
+      var i = 0;
+      function tick() {
+        if (i >= full.length) { el.textContent = full; if (done) done(); return; }
+        i++;
+        el.textContent = full.slice(0, i);
+        window.setTimeout(tick, TYPE_MS);
+      }
+      tick();
+    }
+
+    function next() {
+      if (targets.length === 0) return;
+      var el = targets.shift();
+      typeEl(el, function () { window.setTimeout(next, GAP_MS); });
+    }
+    next();
+  }
 
   // ---- 7) One audio at a time + OST fade --------------------------------
   // When any <audio> in the music panel starts playing:
