@@ -394,6 +394,88 @@ body::before {
   color: var(--text);
 }
 
+/* ----- Timeline panel (Brief 02 §1 / Brief 03) ----------------------- */
+/* Two lists (.timeline-long, .timeline-recent) inside one panel, each
+   with a vertical connector line down the left and a node dot per entry.
+   The long arc is one entry per year (slow, generous spacing); the recent
+   sprint is one per month (fast, tighter spacing + a brighter accent on its
+   line/nodes) so the acceleration reads visually, not just from the headings.
+   Reuses list-label/list-desc for the text — only the connector chrome is new. */
+
+.timeline-heading {
+  font-family: var(--font-head);
+  font-size: 11px;
+  color: var(--text);
+  letter-spacing: 1px;
+  margin: 20px 0 12px;
+  padding-left: 22px;           /* aligns with the timeline text, past the line */
+  position: relative;
+}
+/* A little tick where the heading meets the connector line. */
+.timeline-heading::before {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 7px;
+  height: 7px;
+  background: var(--red);
+  box-shadow: 0 0 6px rgba(209, 26, 26, 0.7);
+}
+.timeline-heading:first-of-type { margin-top: 4px; }
+
+.timeline {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding-left: 22px;           /* room for the line + node + gutter */
+}
+/* The vertical connector line itself, running down the left of each list. */
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 4px;
+  bottom: 4px;
+  width: 2px;
+  background: var(--red-dim);
+}
+
+/* Long arc: generous spacing — one slow beat per year. */
+.timeline-long { gap: 18px; padding-bottom: 6px; }
+.timeline-long li { margin-bottom: 4px; }
+
+/* Recent sprint: tight spacing — brisk monthly beats. Its connector + nodes
+   switch to the brighter red so the pace shift reads at a glance. */
+.timeline-recent { gap: 8px; }
+.timeline-recent::before { background: var(--red-bright); }
+
+/* Node dot on the line for each entry. */
+.timeline li { position: relative; }
+.timeline-node {
+  position: absolute;
+  left: -22px;                  /* sits on the connector line (relative to padded li) */
+  top: 2px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--red);
+  box-shadow: 0 0 6px rgba(209, 26, 26, 0.6);
+  /* vertical center the dot on roughly the first text line */
+  margin-top: 4px;
+}
+.timeline-recent .timeline-node {
+  background: var(--red-bright);
+  box-shadow: 0 0 6px rgba(255, 59, 59, 0.7);
+}
+
+/* Tighter type rhythm for the sprint so the months feel closer together. */
+.timeline-recent .list-label { font-size: 10px; margin-bottom: 2px; line-height: 1.4; }
+.timeline-recent .list-desc  { font-size: 15px; }
+.timeline-long .list-label  { line-height: 1.5; }
+
 /* ----- Text blocks (about me, intros, stubs) ----- */
 .panel-body p { margin-bottom: 12px; }
 .panel-body p:last-child { margin-bottom: 0; }

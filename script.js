@@ -31,14 +31,18 @@
   // playSfx() additionally debounces taps that arrive within guardMs so
   // machine-gunning doesn't constantly cut the sound back to its start.
   //
-  // Chosen from assets/sfx/ (see report in chat):
-  //   open  -> clickMouse.wav   (mouse click for opening panels)
-  //   close -> clickMouse2.wav  (a second click for closing — distinct take)
-  //   switch-> clickSwitch.mp3  (used for BOTH on and off; only one exists)
-  var sfxOpen   = new Audio("assets/sfx/clickMouse.wav");
-  var sfxClose  = new Audio("assets/sfx/clickMouse2.wav");
-  var sfxSwitch = new Audio("assets/sfx/clickSwitch.mp3");
-  [sfxOpen, sfxClose, sfxSwitch].forEach(function (a) { a.preload = "auto"; a.volume = 0.35; });
+  // Current key map (Brief 02 swaps applied — see report):
+  //   open        -> clickMouse3.mp3   (was clickMouse.wav)
+  //   close       -> bookClose.mp3     (was clickMouse2.wav)
+  //   switch on   -> clickSwitchOpen.mp3   (was the single clickSwitch.mp3)
+  //   switch off  -> clickSwitchClose.mp3  (new key, paired with the toggle)
+  var sfxOpen        = new Audio("assets/sfx/clickMouse3.mp3");
+  var sfxClose       = new Audio("assets/sfx/bookClose.mp3");
+  var sfxSwitchOpen  = new Audio("assets/sfx/clickSwitchOpen.mp3");
+  var sfxSwitchClose = new Audio("assets/sfx/clickSwitchClose.mp3");
+  [sfxOpen, sfxClose, sfxSwitchOpen, sfxSwitchClose].forEach(function (a) {
+    a.preload = "auto"; a.volume = 0.35;
+  });
 
   // play() that never throws — browsers may block autoplay and reject the
   // returned Promise even after a user gesture; we want to fail silently.
@@ -66,6 +70,91 @@
     playSafely(audio);
   }
 
+  // ---- Ambient room tone (Brief 02 §5) --------------------------------
+  // A quiet loop that plays ONLY while no other audio (sfx or music) is
+  // active. A central Set (activeAudio) tracks every element currently
+  // producing sound; when it empties, room tone fades in; the instant
+  // anything else starts, it fades out and pauses (resuming position, not
+  // restarting). Room tone itself is deliberately excluded from the set —
+  // it would otherwise keep the set non-empty and block itself from starting.
+  //
+  // A short 250ms debounce on START prevents the bed from blipping in
+  // between rapid one-shot sfx or during the 3s OST-fade-to-track transition
+  // (where the set briefly hits zero). STOP is instant — no debounce — per
+  // the brief ("pause the instant anything else starts playing").
+  var roomTone = new Audio("assets/sfx/loop_roomTone.mp3");
+  roomTone.loop = true;
+  roomTone.volume = 0;                 // fade in/out drives the real volume
+  var ROOM_TONE_VOL = 0.12;            // low — it's a bed, not foreground
+  var activeAudio = new Set();         // audio elements currently making sound
+  var roomToneStartTimer = null;
+  var audioUnlocked = false;           // gate: don't try until after click-to-enter
+
+  // Smooth volume ramp (requestAnimationFrame). targetVol is the goal,
+  // onDone fires once the ramp completes. Used for room-tone fades.
+  function fadeVolume(audio, targetVol, durationMs, onDone) {
+    if (!audio) { if (onDone) onDone(); return; }
+    var startVol = audio.volume;
+    var start = performance.now();
+    function step(now) {
+      var t = (now - start) / durationMs;
+      if (t >= 1) {
+        audio.volume = targetVol;
+        if (onDone) onDone();
+        return;
+      }
+      audio.volume = startVol + (targetVol - startVol) * t;
+      requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  // Wire an audio element into the central tracker. Call once per element.
+  function trackAudio(el) {
+    if (!el || el === roomTone) return;
+    el.addEventListener("play",  function () { audioStarted(el); });
+    el.addEventListener("pause", function () { audioStopped(el); });
+    el.addEventListener("ended", function () { audioStopped(el); });
+  }
+
+  function audioStarted(el) {
+    if (el === roomTone) return;
+    activeAudio.add(el);
+    stopRoomTone();                    // anything playing -> cut the bed instantly
+  }
+  function audioStopped(el) {
+    if (el === roomTone) return;
+    activeAudio.delete(el);
+    // tidy: drop any paused/ended elements still lurking in the set
+    activeAudio.forEach(function (a) {
+      if (a.paused) activeAudio.delete(a);
+    });
+    if (activeAudio.size === 0) startRoomTone();
+  }
+
+  function startRoomTone() {
+    if (!audioUnlocked || !roomTone) return;
+    if (roomToneStartTimer) return;    // already pending
+    roomToneStartTimer = window.setTimeout(function () {
+      roomToneStartTimer = null;
+      if (activeAudio.size !== 0) return;  // something started during the debounce
+      var p = roomTone.play();              // resume from paused position
+      if (p && typeof p.then === "function") p.catch(function () {});
+      fadeVolume(roomTone, ROOM_TONE_VOL, 220);
+    }, 250);
+  }
+  function stopRoomTone() {
+    if (roomToneStartTimer) { window.clearTimeout(roomToneStartTimer); roomToneStartTimer = null; }
+    if (!roomTone || roomTone.paused) return;
+    fadeVolume(roomTone, 0, 180, function () { roomTone.pause(); });
+  }
+
+  // Register the static one-shot / background audio elements with the tracker.
+  // (Music-panel <audio> cards are dynamic — handled by capture listeners in
+  //  the music panel block below; the shuffle player is tracked where it's
+  //  declared, also below.)
+  [sfxOpen, sfxClose, sfxSwitchOpen, sfxSwitchClose, ost, vcr].forEach(trackAudio);
+
   // ---- 4b) Gallery metadata (from the old MynaCatalogue script.js) ------
   // Maps image filenames to titles/medium/date/desc so the lightbox can show
   // a caption with the story behind each piece.
@@ -86,7 +175,8 @@
     "art_rkgk02.jpg": { t:"RKGK 02", med:"Sketches", date:"2024" },
     "art_rkgk03.jpg": { t:"RKGK 03", med:"Sketches", date:"2024" },
     "art_rkgk04.jpg": { t:"RKGK 04", med:"Sketches", date:"2024" },
-    "comic_chineseHumor.jpg": { t:"Chinese Humor", med:"Comic", date:"2025", desc:"I was in the local massive pet store and I overheard a conversation from a family." }
+    "comic_chineseHumor.jpg": { t:"Chinese Humor", med:"Comic", date:"2025", desc:"I was in the local massive pet store and I overheard a conversation from a family." },
+    "shatteredGlass.jpg": { t:"Shattered Glass", med:"Sketches", date:"2025", desc:"I made this when I was burnt out in matrics" }
   };
 
   // Cat-specific titles (from the old script.js catTitle function)
@@ -155,6 +245,7 @@
   function enterSite() {
     if (entryStarted) return;
     entryStarted = true;
+    audioUnlocked = true;   // room-tone bed may now start when the site is idle
 
     // Keep the existing visual entry transition: fade the splash out, then
     // remove it from layout. Runs concurrently with the VCR SFX.
@@ -203,9 +294,9 @@
     if (on) room.classList.remove("is-dark");
     else    room.classList.add("is-dark");
     if (lightSwitch) lightSwitch.setAttribute("aria-pressed", on ? "true" : "false");
-    // clickSwitch.mp3 is the only switch sound in assets/sfx/, so it's used for
-    // both on and off. Flagged in the report: a distinct off-state SFX is wanted.
-    playSfx(sfxSwitch, 160);
+    // Brief 02 §2: distinct on/off switch SFX. clickSwitchOpen when turning on,
+    // clickSwitchClose when turning off — paired with the toggle logic.
+    playSfx(on ? sfxSwitchOpen : sfxSwitchClose, 160);
   }
 
   if (lightSwitch && room) {
@@ -433,6 +524,55 @@
 
   renderSongs();
 
+  // ---- 6b) Timeline panel (Brief 02 §1 / Brief 03) ---------------------
+  // Two sections in one panel: the long arc (yearly, 2020-2025) and the
+  // recent sprint (monthly, 2026). Entries live here as a single data
+  // block so editing dates/wording never means touching layout/markup.
+  // Render preserves the existing list-label/list-desc class structure
+  // (Brief 03 explicitly supersedes the timeline-entry/timeline-date
+  // classes suggested in Brief 02).
+  var TIMELINE = {
+    long: [
+      { label: "Wanted to become a programmer : Started coding in python (but was stuck in Tutorial hell)", when: "2020" },
+      { label: "Wanted to become an animator : Bought my first drawing tablet", when: "2021" },
+      { label: "Wanted to become a psychologist (But didnt want to become a therapist)", when: "2022" },
+      { label: "Started teaching myself guitar", when: "2023" },
+      { label: "Wanted to become a music composer & artist : Felt discouraged because the future isn't that sustainable", when: "2024" },
+      { label: "Wanted to become a paramedic : But pressured to become a doctor", when: "2025" }
+    ],
+    recent: [
+      { label: "On the last week of upu submission, made the decision to go for Computer Science Software Engineering", when: "2026 March" },
+      { label: "Just after finishing matrics, taught myself how to code basic python", when: "2026 May" },
+      { label: "Got into web developing (started learning basic JS, HTML, CSS)", when: "2026 June" },
+      { label: "I had a lot of ideas and I utilized AI to make it into a reality.", when: "2026 July" }
+    ]
+  };
+
+  function renderTimeline() {
+    var longEl  = document.getElementById("timeline-long");
+    var recEl   = document.getElementById("timeline-recent");
+    if (!longEl || !recEl) return;
+
+    function fill(ul, entries) {
+      var html = "";
+      for (var i = 0; i < entries.length; i++) {
+        html += '<li><span class="timeline-node"></span>' +
+                '<span class="list-label"></span>' +
+                '<span class="list-desc"></span></li>';
+      }
+      ul.innerHTML = html;
+      var lis = ul.children;
+      for (var j = 0; j < entries.length; j++) {
+        lis[j].querySelector(".list-label").textContent = entries[j].label;
+        lis[j].querySelector(".list-desc").textContent  = entries[j].when;
+      }
+    }
+    fill(longEl, TIMELINE.long);
+    fill(recEl,  TIMELINE.recent);
+  }
+
+  renderTimeline();
+
   // ---- 7) One audio at a time + OST fade --------------------------------
   // When any <audio> in the music panel starts playing:
   //   a) Pause all OTHER tracks (one-audio-at-a-time).
@@ -483,6 +623,17 @@
         showShufflePlayer();
       }, 3000);
     }, true); // capture phase (play events don't bubble)
+
+    // Room-tone tracker: music-panel <audio> cards are created dynamically by
+    // renderSongs(), so we catch their play/pause/ended events here on the
+    // container (capture phase — these events don't bubble). (Brief 02 §5)
+    ["play", "pause", "ended"].forEach(function (evtName) {
+      musicPanel.addEventListener(evtName, function (e) {
+        if (e.target.tagName !== "AUDIO") return;
+        if (evtName === "play") audioStarted(e.target);
+        else                    audioStopped(e.target);
+      }, true);
+    });
   }
 
   // ---- 8) Shuffle music player -----------------------------------------
@@ -491,6 +642,8 @@
   // order. Non-invasive: sits at the bottom, doesn't block the room.
   var shufflePlayer = document.getElementById("shuffle-player");
   var shuffleAudio = document.getElementById("shuffle-audio");
+  // Register the shuffle player with the room-tone tracker (Brief 02 §5).
+  trackAudio(shuffleAudio);
   var shufflePlayBtn = document.getElementById("shuffle-play");
   var shufflePrevBtn = document.getElementById("shuffle-prev");
   var shuffleNextBtn = document.getElementById("shuffle-next");

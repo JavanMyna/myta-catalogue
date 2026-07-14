@@ -89,6 +89,17 @@
         <span class="hotspot-dot"></span>
       </button>
 
+      <!-- Shattered glass art piece -> corkboard-style zoom + description panel.
+           Position converted from source-image px (1754, 303) on a 3060x4080
+           image to % center: 57.39% left, 7.43% top. Reuses the corkboard
+           pattern exactly — no new panel type. (Brief 02 §6) -->
+      <button type="button" class="hotspot"
+              data-panel="panel-shatteredglass"
+              style="left: 57.39%; top: 7.43%; width: 6%; height: 6%;"
+              aria-label="Open Shattered Glass" title="Shattered Glass">
+        <span class="hotspot-dot"></span>
+      </button>
+
       <!-- Laptop -> Projects panel (WORKS in Phase 1) -->
       <button type="button" class="hotspot"
               data-panel="panel-projects"
@@ -265,57 +276,21 @@
     </section>
 
     <!-- Certificates / Achievements panel -->
-    <!-- REPLACE: certificate entries -->
+    <!-- The certificates concept is scrapped — this is now a timeline of how
+         I got into this. Entries are data-driven (rendered by renderTimeline()
+         in script.js from the TIMELINE object) so future edits only touch the
+         data block, not the layout. (Brief 02 §1 / Brief 03) -->
     <section class="panel" id="panel-certificates" role="dialog" aria-modal="true" aria-labelledby="panel-certificates-title" hidden>
       <div class="panel-bar">
         <span class="panel-title" id="panel-certificates-title">Passion Timeline</span>
         <button type="button" class="panel-close" data-close aria-label="Close panel">x</button>
       </div>
       <div class="panel-body">
-        <ul class="panel-list">
-          <!-- ~~REPLACE: certificate entries~~ -->
-           <!--Actually i dont wanna boast, imma just give timeline of how my passion went in circle-->
-          <li>
-            <span class="list-label">Wanted to become a programmer : Started coding in python (but was stuck in Tutorial hell)</span>
-            <span class="list-desc">2020</span>
-          </li>
-          <li>
-            <span class="list-label">Wanted to become an animator : Bought my first drawing tablet</span>
-            <span class="list-desc">2021</span>
-          </li>
-          <li>
-            <span class="list-label">Wanted to become a psychologist (But didnt want to become a therapist)</span>
-            <span class="list-desc">2022</span>
-          </li>
-          <li>
-            <span class="list-label">Started teaching myself guitar</span>
-            <span class="list-desc">2023</span>
-          </li>
-          <li>
-            <span class="list-label">Wanted to become a music composer & artist : Felt discouraged because the future isn't that sustainable</span>
-            <span class="list-desc">2024</span>
-          </li>
-          <li>
-            <span class="list-label">Wanted to become a paramedic : But pressured to become a doctor</span>
-            <span class="list-desc">2025</span>
-          </li>
-          <li>
-            <span class="list-label">On the last week of upu submission, made the decision to go for Computer Science Software Engineering</span>
-            <span class="list-desc">2026 March</span>
-          </li>
-          <li>
-            <span class="list-label">Just after finishing matrics, taught myself how to code basic python</span>
-            <span class="list-desc">2026 May</span>
-          </li>
-          <li>
-            <span class="list-label">Got into web developing (started learning basic JS, HTML, CSS)</span>
-            <span class="list-desc">2026 June</span>
-          </li>
-          <li>
-            <span class="list-label">I had a lot of ideas and I utilized AI to make it into a reality.</span>
-            <span class="list-desc">2026 July</span>
-          </li>
-        </ul>
+        <p class="panel-intro">the long way round to here</p>
+        <h2 class="timeline-heading">the search</h2>
+        <ul class="timeline timeline-long" id="timeline-long"></ul>
+        <h2 class="timeline-heading">the sprint</h2>
+        <ul class="timeline timeline-recent" id="timeline-recent"></ul>
       </div>
     </section>
 
@@ -360,6 +335,7 @@
           <img class="panel-thumb" loading="lazy" src="assets/art/art_rkgk03.jpg" alt="rkgk 03">
           <img class="panel-thumb" loading="lazy" src="assets/art/art_rkgk04.jpg" alt="rkgk 04">
           <img class="panel-thumb" loading="lazy" src="assets/art/comic_chineseHumor.jpg" alt="comic: chinese humor">
+          <img class="panel-thumb" loading="lazy" src="assets/art/shatteredGlass.jpg" alt="shattered glass">
         </div>
       </div>
     </section>
@@ -394,7 +370,7 @@
         <!-- REPLACE: journal posts -->
         <article class="post">
           <header class="post-date">2026-07-14</header>
-          <p>You know, I almost gave up creating in the first place. My initial idea was actually a 'One Dreamer' heavily inspired space where you can click and see. In the end, I just use my DIY shelf and just put clickable points to look at the details. It aint baddd honestly.</p>
+          <p>You know...I almost gave up creating this concept website in the first place. My initial idea was actually a 'One Dreamer' heavily inspired space where you can click and see. In the end, I just used my DIY shelf and put clickable points. I'd say it aint that bad looking honestly.</p>
         </article>
         <!--
         <article class="post">
@@ -543,6 +519,21 @@
         Bottom left corner : POV of my study table in matrics.
         </p>
         <img class="full-img" src="corkBoard.jpg" alt="The whole corkboard / drawing board">
+      </div>
+    </section>
+
+    <!-- Shattered Glass piece -> corkboard-style zoomed image + description.
+         Same structure/interaction as the corkboard panel above (Brief 02 §6):
+         panel-intro + corkboard-desc + full-img. -->
+    <section class="panel" id="panel-shatteredglass" role="dialog" aria-modal="true" aria-labelledby="panel-shatteredglass-title" hidden>
+      <div class="panel-bar">
+        <span class="panel-title" id="panel-shatteredglass-title">Shattered Glass</span>
+        <button type="button" class="panel-close" data-close aria-label="Close panel">x</button>
+      </div>
+      <div class="panel-body">
+        <p class="panel-intro">a piece I made when I was burnt out</p>
+        <p class="corkboard-desc">I made this when I was burnt out in matrics</p>
+        <img class="full-img" src="assets/art/shatteredGlass.jpg" alt="Shattered Glass — made during matrics burnout">
       </div>
     </section>
 
