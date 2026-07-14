@@ -24,6 +24,21 @@
   var musicPanel = document.getElementById("panel-music");
   var musicTracks = document.getElementById("music-tracks");
 
+  // Images to warm into the cache when the user clicks to enter (see
+  // enterSite). Curated, not exhaustive — full-size panel images that would
+  // otherwise show a blank gap, the about photo, and the first few drawings
+  // thumbnails. The rest of the gallery stays loading="lazy".
+  var PRELOAD_IMAGES = [
+    "corkBoard.jpg",
+    "assets/art/shatteredGlass.jpg",
+    "assets/photography/people/fred01.jpg",
+    "assets/art/antformicidae.jpg",
+    "assets/art/art_2024sukanDay.jpg",
+    "assets/art/art_classmate01.jpg",
+    "assets/art/art_kmlcat.jpg",
+    "assets/art/art_miko.jpg"
+  ];
+
   // ---- SFX system (Feature 3) ----------------------------------------
   // One-shot UI sounds created as preloaded Audio() nodes so the first
   // play has no delay. Each node is a SINGLE stream, so rapid taps can never
@@ -70,20 +85,25 @@
     playSafely(audio);
   }
 
-  // ---- Ambient room tone (Brief 02 §5) --------------------------------
-  // A quiet loop that plays ONLY while no other audio (sfx or music) is
-  // active. A central Set (activeAudio) tracks every element currently
-  // producing sound; when it empties, room tone fades in; the instant
-  // anything else starts, it fades out and pauses (resuming position, not
-  // restarting). Room tone itself is deliberately excluded from the set —
-  // it would otherwise keep the set non-empty and block itself from starting.
+  // ---- Ambient room tone (Brief 02 §5, revised) -----------------------
+  // A quiet loop that plays while the site is idle. It is only interrupted
+  // by MUSIC — UI sfx (panel open/close, light switch, the VCR insert) play
+  // OVER it and never pause it, so button clicks don't cause an awkward
+  // stop/start of the bed. Only the OST, the shuffle player, and the
+  // music-panel song cards register with the tracker.
   //
-  // A short 250ms debounce on START prevents the bed from blipping in
-  // between rapid one-shot sfx or during the 3s OST-fade-to-track transition
-  // (where the set briefly hits zero). STOP is instant — no debounce — per
-  // the brief ("pause the instant anything else starts playing").
+  // A central Set (activeAudio) holds the music elements currently producing
+  // sound; when it empties, room tone fades in; the instant any music starts
+  // it fades out and pauses (resuming position, not restarting). Room tone
+  // itself is excluded from the set — it would otherwise keep the set
+  // non-empty and block itself from starting.
+  //
+  // A short 250ms debounce on START prevents the bed from blipping during
+  // the 3s OST-fade-to-track transition (where the set briefly hits zero).
+  // STOP is instant — no debounce — so music cuts the bed the moment it begins.
   var roomTone = new Audio("assets/sfx/loop_roomTone.mp3");
   roomTone.loop = true;
+  roomTone.preload = "auto";          // start fetching immediately so it's ready on entry
   roomTone.volume = 0;                 // fade in/out drives the real volume
   var ROOM_TONE_VOL = 0.12;            // low — it's a bed, not foreground
   var activeAudio = new Set();         // audio elements currently making sound
@@ -149,11 +169,13 @@
     fadeVolume(roomTone, 0, 180, function () { roomTone.pause(); });
   }
 
-  // Register the static one-shot / background audio elements with the tracker.
+  // Register the MUSIC sources with the tracker. SFX (sfxOpen/Close/switch,
+  //   vcr) are deliberately NOT tracked — they play over the bed and never
+  //   stop it, so clicking buttons no longer causes the awkward stop/start.
   // (Music-panel <audio> cards are dynamic — handled by capture listeners in
   //  the music panel block below; the shuffle player is tracked where it's
   //  declared, also below.)
-  [sfxOpen, sfxClose, sfxSwitchOpen, sfxSwitchClose, ost, vcr].forEach(trackAudio);
+  trackAudio(ost);
 
   // ---- 4b) Gallery metadata (from the old MynaCatalogue script.js) ------
   // Maps image filenames to titles/medium/date/desc so the lightbox can show
@@ -246,6 +268,18 @@
     if (entryStarted) return;
     entryStarted = true;
     audioUnlocked = true;   // room-tone bed may now start when the site is idle
+
+    // Preload a curated subset of images so visiting common panels feels
+    // instant. We warm the browser cache with `new Image()` (no DOM insert)
+    // for: the two full-size panel images (corkboard, shattered glass — shown
+    // big the moment their panel opens), the about photo, and the first few
+    // art thumbnails (top of the drawings grid, which uses loading="lazy" so
+    // it would otherwise fetch on first open). The rest stay lazy. Tunable
+    // via PRELOAD_IMAGES below.
+    PRELOAD_IMAGES.forEach(function (src) {
+      var img = new Image();
+      img.src = src;
+    });
 
     // Keep the existing visual entry transition: fade the splash out, then
     // remove it from layout. Runs concurrently with the VCR SFX.
