@@ -18,6 +18,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pixelify+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="css/signWall.css" />
 
   <!-- Preload the two intro-audio files so there is no gap between the
        click-to-enter and the VCR insert SFX starting. (Feature 1) -->
@@ -211,10 +212,17 @@
         <span class="hotspot-dot"></span>
       </button>
 
-      <!-- TODO 2: empty support/leg area - intentionally does nothing yet -->
-      <button type="button" class="hotspot pending"
+      <!-- Sign Wall (guestbook) -> visitor sign wall panel.
+           This was the spare "empty support/leg area" TODO hotspot; it now
+           opens the guestbook. The wall surface itself (Minecraft-style
+           blocks) lives inside the panel — see #panel-signwall below. The
+           persisted signs come from Supabase (js/supabaseClient.js +
+           js/signWall.js). Nudge left/top/width/height if it's off the
+           shelf's visual anchor you want it attached to. -->
+      <button type="button" class="hotspot"
+              data-panel="panel-signwall"
               style="left: 74%; top: 84.5%; width: 16%; height: 10%;"
-              aria-label="Empty area (TODO)" title="TODO: empty area">
+              aria-label="Open the Sign Wall (guestbook)" title="Sign Wall (guestbook)">
         <span class="hotspot-dot"></span>
       </button>
     </div>
@@ -735,6 +743,38 @@
       </div>
     </section>
 
+    <!-- Sign Wall (guestbook) panel.
+         The wall surface (.wall) is built from CSS-grid Minecraft-style
+         blocks (js/signWall.js builds the cells). Signs from other visitors
+         are fetched from Supabase on panel open and rendered into
+         .wall-overlay at their stored grid coords. Clicking an empty cell
+         opens the placement modal (also built by signWall.js).
+         State hints (.wall-loading/.wall-empty/.wall-error/.wall-disabled)
+         are toggled by JS; .wall-toast is the transient rate-limit notice. -->
+    <section class="panel panel-signwall" id="panel-signwall" role="dialog" aria-modal="true" aria-labelledby="panel-signwall-title" hidden>
+      <div class="panel-bar">
+        <span class="panel-title" id="panel-signwall-title">Sign Wall</span>
+        <button type="button" class="panel-close" data-close aria-label="Close panel">x</button>
+      </div>
+      <div class="panel-body">
+        <p class="panel-intro">leave a sign on the wall · one per day</p>
+        <div class="wall">
+          <!-- Block cells injected by js/signWall.js -->
+          <div class="wall-blocks"></div>
+          <!-- Sign sprites injected by js/signWall.js at % grid coords -->
+          <div class="wall-overlay"></div>
+          <!-- State hints -->
+          <div class="wall-loading" hidden>loading signs...</div>
+          <div class="wall-empty" hidden>no signs yet — click an empty block to leave one</div>
+          <div class="wall-error" hidden>couldn't reach the guestbook — try again in a moment</div>
+          <div class="wall-disabled" hidden>guestbook isn't configured yet (check back soon)</div>
+          <!-- Transient notice (rate-limit / rollback) -->
+          <div class="wall-toast" hidden></div>
+        </div>
+        <p class="sign-note">signs are public and persist for everyone who visits after you.</p>
+      </div>
+    </section>
+
   </div>
 
   <!-- ===== Lightbox (full image view) =====
@@ -771,6 +811,16 @@
 
   <!-- Song data (copied from MynaCatalogue; single source of truth for the music panel) -->
   <script src="songs.js"></script>
+
+  <!-- Sign Wall (guestbook): Supabase JS client (UMD CDN build, exposes
+       window.supabase) -> our client init (window.sb) -> the wall logic.
+       Load order matters: supabaseClient.js depends on the SDK global;
+       signWall.js depends on window.sb from supabaseClient.js. The anon
+       key is public-by-design; RLS is the real boundary (see sql/signs_schema.sql). -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase-js.min.js"></script>
+  <script src="js/supabaseClient.js"></script>
+  <script src="js/signWall.js"></script>
+
   <script src="script.js"></script>
 </body>
 </html>

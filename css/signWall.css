@@ -1,0 +1,331 @@
+/* ============================================================
+   MitaCatalogue — css/signWall.css
+   Sign Wall (guestbook): the Minecraft-block wall, the oak sign
+   sprite, and the placement modal. Loaded alongside style.css;
+   reuses the same CSS variables (--red, --red-bright, --red-dim,
+   --ink, --panel-bg, --text, --font-head, --font-body).
+   ============================================================ */
+
+/* ---- The wall container ----------------------------------------------
+   Relative so the blocks grid and the signs overlay can be layered
+   inside it. Aspect ratio 12:8 (= 3:2) matches GRID_COLS:GRID_ROWS so
+   each block cell stays square-shaped at any panel width. */
+.wall {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  background: #2a1a0d;
+  border: 2px solid var(--red-dim);
+  box-shadow: inset 0 0 0 2px #000, 0 8px 22px rgba(0, 0, 0, 0.5);
+  cursor: crosshair;
+  line-height: 0;
+  overflow: hidden;
+}
+
+/* The visual block grid (CSS Grid mirrors the 12x8 logical grid). These
+   divs are PURELY decorative — clicks fall through (pointer-events:none on
+   the layer) to the single click handler on .wall. */
+.wall-blocks {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* A single Minecraft-style oak-plank block.
+   Base color + 4 subtle shade variants give a pixel-art plank texture
+   without any image asset. Each block also gets a thin inset gap via
+   outline so the grid reads as discrete blocks. */
+.block {
+  background: #b5854b;
+  outline: 1px solid rgba(0, 0, 0, 0.25);
+  outline-offset: -1px;
+  /* faint horizontal plank lines */
+  background-image:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.10) 0 1px, transparent 1px 50%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0 1px, transparent 1px);
+  background-size: 100% 50%, 100% 100%;
+}
+.block-shade-0 { background-color: #b5854b; }
+.block-shade-1 { background-color: #a87a40; }
+.block-shade-2 { background-color: #bd8f52; }
+.block-shade-3 { background-color: #a06e38; }
+
+/* On hover we can't light a single block cheaply with one delegated click
+   handler (the blocks are pointer-events:none). Instead a faint grid
+   "halo" appears over the whole wall on hover so it's clear it's the
+   interactive guestbook surface, not a plain image. */
+.wall:hover {
+  box-shadow: inset 0 0 0 2px var(--red), 0 8px 22px rgba(0, 0, 0, 0.5),
+              0 0 18px rgba(209, 26, 26, 0.35);
+}
+
+/* ---- Signs overlay -----------------------------------------------------
+   Absolutely-positioned sign sprites at % coords. pointer-events:none so
+   clicks pass through to the wall surface (the click handler computes the
+   cell and refuses occupied ones). */
+.wall-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;                 /* above the blocks, below state hints */
+}
+
+/* A sign sprite — centered on its cell via translate(-50%,-50%), matching
+   the hotspot positioning convention in style.css. */
+.sign {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 10%;                 /* slightly wider than 1 cell so text is legible */
+  max-width: 64px;
+}
+.sign-board {
+  position: relative;
+  background: #c9a063;
+  border: 2px solid #4a3320;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.25),
+              0 2px 4px rgba(0, 0, 0, 0.5);
+  /* plank grain on the sign board itself */
+  background-image: linear-gradient(
+    180deg, rgba(0, 0, 0, 0.08) 0 1px, transparent 1px 50%
+  );
+  background-size: 100% 50%;
+  padding: 8% 10% 10%;
+  /* a stub at the bottom where the (wall) post would be */
+}
+.sign-board::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  transform: translate(-50%, -2px);
+  width: 24%;
+  height: 18%;
+  background: #6b4a2a;
+  border: 1px solid #3a2716;
+  border-top: none;
+}
+
+.sign-text {
+  display: block;
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 10px;
+  line-height: 1.15;
+  color: #1a1208;
+  text-align: center;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  overflow: hidden;
+  /* cap the visible area so very long messages don't spill onto neighbors */
+  max-height: 4.6em;
+}
+
+/* Optimistic sign: dimmed, dashed border until the DB confirms the insert.
+   Rolls back (vanishes) if the insert fails — see signWall.js. */
+.sign.is-optimistic {
+  opacity: 0.7;
+}
+.sign.is-optimistic .sign-board {
+  outline: 1px dashed #fff7d6;
+  outline-offset: 1px;
+}
+
+/* ---- State hints (loading / empty / error / disabled) ----------------- */
+.wall-loading,
+.wall-empty,
+.wall-error,
+.wall-disabled {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 18px;
+  font-family: var(--font-head);
+  font-size: 10px;
+  color: var(--text);
+  background: rgba(10, 6, 4, 0.78);
+  z-index: 3;                 /* above the wall surface */
+  pointer-events: none;       /* let clicks still reach the wall when hidden */
+  line-height: 1.5;
+}
+.wall-loading { color: #f4d488; }
+.wall-empty   { color: var(--red-bright); }
+.wall-error   { color: var(--red-bright); }
+.wall-disabled { color: var(--red-dim); }
+
+/* Transient toast for rate-limit / rollback notices. Sits over the wall. */
+.wall-toast {
+  position: absolute;
+  left: 50%;
+  bottom: 10%;
+  transform: translateX(-50%);
+  font-family: var(--font-head);
+  font-size: 10px;
+  color: #fff;
+  background: rgba(20, 8, 8, 0.92);
+  border: 1px solid var(--red);
+  padding: 8px 12px;
+  z-index: 4;
+  pointer-events: none;
+  max-width: 90%;
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* ---- Placement modal -------------------------------------------------- */
+/* A fixed overlay above the signwall panel + its backdrop (z-index 45 >
+   lightbox 40 > panels 30 > panel-backdrop 25). Mirrors .panel + .lightbox
+   conventions but is its own component class so it doesn't collide. */
+.signmodal[hidden] { display: none !important; }
+
+.signmodal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 45;
+  padding: 20px;
+}
+
+.signmodal-frame {
+  width: min(90vw, 320px);
+  background: var(--panel-bg);
+  border: 2px solid var(--red);
+  box-shadow: 0 0 0 4px #000, 0 0 28px rgba(209, 26, 26, 0.4),
+              0 20px 50px rgba(0, 0, 0, 0.8);
+  animation: pop-in .18s ease; /* reuse keyframes from style.css */
+}
+
+.signmodal-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: var(--red);
+  color: #fff;
+}
+.signmodal-title {
+  font-family: var(--font-head);
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+.signmodal-close {
+  font-family: var(--font-head);
+  font-size: 12px;
+  background: transparent;
+  border: 1px solid #fff;
+  color: #fff;
+  width: 26px;
+  height: 26px;
+  cursor: pointer;
+  line-height: 1;
+}
+.signmodal-close:hover { background: #fff; color: var(--red); }
+
+.signmodal-body { padding: 16px; }
+
+.signmodal-hint {
+  font-family: var(--font-head);
+  font-size: 9px;
+  color: var(--red-dim);
+  margin-bottom: 12px;
+}
+
+/* Honeypot: visually + assistively hidden, still focusable-off-flow.
+   Positioned offscreen so real users never see it; bots that autoscrap
+   form fields tend to fill `name="website"`. */
+.signmodal-hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.signmodal-text {
+  width: 100%;
+  box-sizing: border-box;
+  background: #1a0a0c;
+  border: 1px solid var(--red-dim);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.25;
+  padding: 8px;
+  resize: none;
+  display: block;
+}
+.signmodal-text:focus { outline: 1px solid var(--red); border-color: var(--red); }
+
+.signmodal-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+  font-family: var(--font-head);
+  font-size: 9px;
+}
+.signmodal-counter { color: var(--text); }
+.signmodal-counter.is-warn { color: var(--red-bright); }
+.signmodal-error {
+  color: var(--red-bright);
+  text-align: right;
+  flex: 1;
+}
+
+.signmodal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 14px;
+}
+.signmodal-cancel,
+.signmodal-submit {
+  font-family: var(--font-head);
+  font-size: 10px;
+  background: transparent;
+  border: 1px solid var(--red-dim);
+  color: var(--red-bright);
+  padding: 7px 12px;
+  cursor: pointer;
+  line-height: 1;
+}
+.signmodal-cancel:hover,
+.signmodal-submit:hover:not(:disabled) {
+  background: var(--red);
+  color: #fff;
+  border-color: var(--red);
+}
+.signmodal-submit:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Small disclaimer under the wall. */
+.sign-note {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--red-dim);
+  text-align: center;
+  margin-top: 14px;
+}
+
+/* ---- Mobile / small-screen tweaks ------------------------------------- */
+/* On narrow screens the modal textarea stays usable; the sign sprites shrink
+   via their %-based width already, so no override needed there. */
+@media (max-width: 480px) {
+  .signmodal-frame { width: 94vw; }
+  .sign-text { font-size: 8px; }
+  .wall-loading, .wall-empty, .wall-error, .wall-disabled { font-size: 9px; }
+}
