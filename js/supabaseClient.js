@@ -22,8 +22,8 @@ window.SUPABASE_CONFIG = {
   // TODO(Fred): paste your Supabase project values here, then commit.
   //   url     = Settings > API > Project URL
   //   anonKey = Settings > API > Project API keys > "anon public"
-  url: "",
-  anonKey: ""
+  url: "yoeivsrqsjlknjmgyajq",
+  anonKey: "sb_publishable_sHg5G2KowZwviHm6oWiu6A_rz1lTP9G"
 };
 
 // The initialized client, or null if not configured / SDK missing.
