@@ -47,7 +47,7 @@
        percentages over the image, so they stay aligned at any screen size. -->
   <main id="stage">
     <div class="room is-dark" id="room">
-      <img class="room-img" src="mainPic.jpg" alt="Fred's room shelf" />
+      <img class="room-img" src="assets/misc/mainPic.jpg" alt="Fred's room shelf" />
 
       <!-- ===== Hotspots =====
            Positions are CENTER points (% from left, % from top) of the image.
@@ -102,7 +102,7 @@
 
       <!-- Credits plaque -> museum-style credits panel.
            Position converted from source-image px (419, 431) on the 3060x4080
-           mainPic.jpg to % center: 13.69% left, 10.56% top — same formula used
+           assets/misc/mainPic.jpg to % center: 13.69% left, 10.56% top — same formula used
            for shattered-glass and visitors. Width/height are a starting guess;
            load the site and nudge per the convention comment above. (Brief 04 §1) -->
       <button type="button" class="hotspot"
@@ -199,10 +199,15 @@
 
       <!-- ===== TODO hotspots (intentionally do nothing yet, no error) ===== -->
 
-      <!-- TODO 1: colored pens - intentionally does nothing yet -->
-      <button type="button" class="hotspot pending"
+      <!-- Colored pens -> devlog panel.
+           This was a pending TODO hotspot (Brief: "the hotspot near the
+           colour marker"). The colored pens ARE the colour marker, so it
+           now opens the devlog. Removed .pending so the dot pulses like the
+           other working hotspots. -->
+      <button type="button" class="hotspot"
+              data-panel="panel-devlog"
               style="left: 73.4%; top: 73.3%; width: 16%; height: 10%;"
-              aria-label="Colored pens (TODO)" title="TODO: colored pens">
+              aria-label="Open Devlog" title="Devlog (colored pens)">
         <span class="hotspot-dot"></span>
       </button>
 
@@ -234,9 +239,42 @@
         <ul class="panel-list project-list">
           <!-- REPLACE: project entries -->
           <li class="project-item">
+            <span class="list-label">Project 4flat</span>
+            <span class="list-desc">Google Sheets study tracker</span>
+            <span class="project-desc">A Google Sheets study tracker, built with a study partner during Matriculation Sem 2 — logging every practice question and quietly running statistics on our own weak spots.</span>
+
+            <!-- In-card thumbnail strip. Clicking any thumbnail opens the
+                 same lightbox the Drawings/Photos panels use (delegated
+                 listener in script.js on img.panel-thumb). No new component
+                 type — just three panel-thumb instances inside the card so
+                 the screenshots stay legible at full size. -->
+            <div class="project-gallery">
+              <img class="panel-thumb" loading="lazy" src="assets/misc/p4f_fred01.png" alt="Project 4flat — sheet overview">
+              <img class="panel-thumb" loading="lazy" src="assets/misc/p4f_fred02.png" alt="Project 4flat — sheet detail">
+              <img class="panel-thumb" loading="lazy" src="assets/misc/p4f_logs.png" alt="Project 4flat — study session logs">
+            </div>
+
+            <!-- Expandable full description. Reuses the song-card
+                 .is-expanded toggle pattern: JS flips .is-expanded on the
+                 .project-item when the [ + ] button is clicked. -->
+            <button type="button" class="project-more" aria-expanded="false">more</button>
+            <div class="project-full">
+              <p>A Google Sheets tracker built from scratch with a study partner during my final semester of Matriculation. Not a school assignment — just two people who wanted an actual system for revising, instead of a textbook vaguely marked &lsquo;done.&rsquo;</p>
+              <p>Every practice question either of us attempted got logged: source paper, subject, marks, time spent. The sheet did the boring-but-useful part automatically — accumulated marks, mean, and standard deviation per question — so a bad score would show up as either &lsquo;just an off day&rsquo; or &lsquo;an actual weak spot,&rsquo; instead of both looking identical.</p>
+              <p>There&rsquo;s also a shared log — dates, subjects, and study session blocks running from March through May, right through exam season. Not glamorous, mostly timestamps and question numbers, but it&rsquo;s the clearest proof I have that this wasn&rsquo;t theoretical. We used it, every week, until the semester ended.</p>
+              <p class="p4f-highlight">Semester 2 CGPA: 4.00</p>
+            </div>
+          </li>
+          <li class="project-item">
             <span class="list-label">Jess Boubie Craft website</span>
             <span class="list-desc">Static site · HTML / CSS / JS</span>
             <span class="project-desc">A handcrafted-brass jewellery catalogue site for Jess Boubie Craft, built as a static site.</span>
+            <!-- TODO: to add a screenshot to this card later, drop the file
+                 into assets/misc/ and uncomment a project-gallery block here:
+            <div class="project-gallery">
+              <img class="panel-thumb" loading="lazy" src="assets/misc/TODO_jbc.jpg" alt="Jess Boubie Craft website screenshot">
+            </div>
+            -->
             <div class="project-links">
               <a class="project-link" href="https://github.com/JavanMyna/jess-boubie-craft" target="_blank" rel="noopener">GitHub</a>
               <a class="project-link" href="https://jess-boubie-craft.mynko.workers.dev/" target="_blank" rel="noopener">Live</a>
@@ -246,6 +284,12 @@
             <span class="list-label">7 Degrees</span>
             <span class="list-desc">Python game</span>
             <span class="project-desc">My first long term project. A simple Python game. It was shelved long ago so I'm hoping one day I would come back to rebuild it. I really want it to be playable at least in the browser yk — ehhh that's a future problem for me.</span>
+            <!-- TODO: add a screenshot of 7 Degrees gameplay here later.
+                 Drop the file into assets/misc/ and uncomment:
+            <div class="project-gallery">
+              <img class="panel-thumb" loading="lazy" src="assets/misc/TODO_7degrees.jpg" alt="7 Degrees gameplay screenshot">
+            </div>
+            -->
             <div class="project-links">
               <a class="project-link" href="https://github.com/JavanMyna/7-Degrees/tree/main" target="_blank" rel="noopener">GitHub</a>
               <a class="project-link" href="https://javanmyna.github.io/7-Degrees/" target="_blank" rel="noopener">Live</a>
@@ -255,6 +299,12 @@
             <span class="list-label">Matrics 25/26 PSPM Analysis</span>
             <span class="list-desc">Data analysis</span>
             <span class="project-desc">A data-analysis site for Matrics 25/26 PSPM results. Currently it looks broken on phone, I'll fix it later.</span>
+            <!-- TODO: add a screenshot of the PSPM analysis dashboard here later.
+                 Drop the file into assets/misc/ and uncomment:
+            <div class="project-gallery">
+              <img class="panel-thumb" loading="lazy" src="assets/misc/TODO_pspm.jpg" alt="PSPM analysis dashboard screenshot">
+            </div>
+            -->
             <div class="project-links">
               <a class="project-link" href="https://kml-2526-analysis.netlify.app/" target="_blank" rel="noopener">Live</a>
             </div>
@@ -264,6 +314,12 @@
             <span class="list-label">Myna Catalogue</span>
             <span class="list-desc">Static site · HTML / CSS / JS</span>
             <span class="project-desc">My first personal catalogue site — the predecessor to this one. A collection of my drawings, photos, music, and code in one place.</span>
+            <!-- TODO: add a screenshot of the old Myna Catalogue site here later.
+                 Drop the file into assets/misc/ and uncomment:
+            <div class="project-gallery">
+              <img class="panel-thumb" loading="lazy" src="assets/misc/TODO_myna.jpg" alt="Myna Catalogue screenshot">
+            </div>
+            -->
             <div class="project-links">
               <a class="project-link" href="https://javanmyna.github.io/myna-catalogue/" target="_blank" rel="noopener">Live</a>
             </div>
@@ -366,6 +422,11 @@
             <!-- REPLACE: about-me text -->
             <p>Hi, I'm Fred, I make things.</p>
             <p>This archive is where I collect them in one place — drawings, photos, music, and code — instead of leaving them scattered across folders and platforms.</p>
+            <p>I also do sports...well sometimes. Like trail running!</p>
+            <p>Favourites:
+              <br>color : red
+              <br>animal : cat/bird
+              <br>genre : happy hardcore / retro pop </p>
           </div>
         </div>
       </div>
@@ -530,7 +591,7 @@
         The 91% was my trial exam mark for math (semester 2).
         Bottom left corner : POV of my study table in matrics.
         </p>
-        <img class="full-img" src="corkBoard.jpg" alt="The whole corkboard / drawing board">
+        <img class="full-img" src="assets/misc/corkBoard.jpg" alt="The whole corkboard / drawing board">
       </div>
     </section>
 
@@ -576,35 +637,35 @@
         </ul>
 
         <!-- Wing 2 — INSPIRATION.
-             TODO: per Brief 04 §2, real cover art / screenshots for the
-             ULTRAKILL and One Dreamer plaques should be self-hosted under
-             assets/credits/ (same pattern as assets/art/ and
-             assets/photography/). The encrypted-tbn0.gstatic.com URLs Fred
-             originally passed are low-res Google Images cache thumbnails
-             (note the s=10 param) and can break at any time — so they are
-             intentionally NOT wired here. Drop local files in and add
-             <img class="plaque-thumb"> lines once they exist.
-             Only mxrza.xyz has a confirmed link target — ULTRAKILL and One
-             Dreamer are left as unlinked plaques until Fred confirms a
-             destination (store page, YouTube, etc.). -->
+             Brief 04 §2: real cover art / screenshots for the ULTRAKILL and
+             One Dreamer plaques are now self-hosted under assets/credits/
+             (credit_ultrakill.jpeg, credit_onedreamer.jpg) and wired as
+             <img class="plaque-thumb"> lines — the low-res Google Images
+             cache thumbnails Fred originally passed are no longer used.
+             Only mxrza.xyz has a link target; ULTRAKILL and One Dreamer stay
+             unlinked plaques until Fred confirms a destination (store page,
+             YouTube, etc.). -->
         <h2 class="credits-wing">INSPIRATION</h2>
         <ul class="plaque-wall">
           <li class="plaque">
             <div class="plaque-header">
               <a class="plaque-link" href="https://mxrza.xyz/" target="_blank" rel="noopener">mxrza.xyz</a>
             </div>
-            <p class="plaque-body" data-typewriter>its computer vibe and how well made the site is.</p>
-            <!-- Native 88x31 webring badge — safe to hotlink as-is per Brief 04. -->
+            <!-- Native 88x31 webring badge — safe to hotlink as-is per Brief 04. #What? -->
+            <img class="plaque-thumb" loading="lazy" src="assets/credits/credit_mxrza.png" alt="Mirzi's Website">
             <a class="webring-badge" href="https://mxrza.xyz/" target="_blank" rel="noopener">
+            <p class="plaque-body" data-typewriter>its unique computer vibe and how well made the site is.</p>
               <img src="https://mxrza.xyz/mxrza.gif" alt="mxrza.xyz webring badge" width="88" height="31" loading="lazy">
             </a>
           </li>
           <li class="plaque">
             <div class="plaque-header">ULTRAKILL Credits Museum</div>
+            <img class="plaque-thumb" loading="lazy" src="assets/credits/credit_ultrakill02.jpg" alt="ULTRAKILL Credits Museum">
             <p class="plaque-body" data-typewriter>the first time I saw a unique way to credit someone</p>
           </li>
           <li class="plaque">
             <div class="plaque-header">One Dreamer</div>
+            <img class="plaque-thumb" loading="lazy" src="assets/credits/credit_onedreamer.jpg" alt="One Dreamer">
             <p class="plaque-body" data-typewriter>love the vibe and the music</p>
           </li>
         </ul>
@@ -634,6 +695,43 @@
              proxy the request through a serverless function (Cloudflare
              Worker / Netlify Function) that holds the token server-side. -->
         <p class="visitor-fine">total pageviews · cached a few hours</p>
+      </div>
+    </section>
+
+    <!-- Devlog panel (colored pens hotspot).
+         Reusable "devlog entry" pattern: each entry is an <article
+         class="devlog-entry"> with a caption header + an image set. To add
+         the next entry (another build stage of the site itself), copy one
+         <article> block and drop new images into assets/misc/. Images use
+         img.panel-thumb so the existing lightbox opens them full-size on
+         click — no new zoom component. -->
+    <section class="panel" id="panel-devlog" role="dialog" aria-modal="true" aria-labelledby="panel-devlog-title" hidden>
+      <div class="panel-bar">
+        <span class="panel-title" id="panel-devlog-title">Devlog</span>
+        <button type="button" class="panel-close" data-close aria-label="Close panel">x</button>
+      </div>
+      <div class="panel-body">
+        <p class="panel-intro">build notes from the site itself</p>
+
+        <!-- Entry 1 — concept sketch -->
+        <article class="devlog-entry">
+          <header class="devlog-caption">Concept sketch of Myta Catalogue</header>
+          <div class="devlog-images">
+            <img class="panel-thumb" loading="lazy" src="assets/misc/devlogMyta01.png" alt="Myta Catalogue concept sketch 01">
+            <img class="panel-thumb" loading="lazy" src="assets/misc/devlogMyta02.png" alt="Myta Catalogue concept sketch 02">
+          </div>
+        </article>
+
+        <!--
+        Entry template — copy this block for the next devlog entry:
+
+        <article class="devlog-entry">
+          <header class="devlog-caption">Caption here</header>
+          <div class="devlog-images">
+            <img class="panel-thumb" loading="lazy" src="assets/misc/FILENAME.png" alt="alt text">
+          </div>
+        </article>
+        -->
       </div>
     </section>
 

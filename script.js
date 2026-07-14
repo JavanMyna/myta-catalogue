@@ -29,7 +29,7 @@
   // otherwise show a blank gap, the about photo, and the first few drawings
   // thumbnails. The rest of the gallery stays loading="lazy".
   var PRELOAD_IMAGES = [
-    "corkBoard.jpg",
+    "assets/misc/corkBoard.jpg",
     "assets/art/shatteredGlass.jpg",
     "assets/photography/people/fred01.jpg",
     "assets/art/antformicidae.jpg",
@@ -445,6 +445,19 @@
 
     lightbox.hidden = false;
     updateScrollLock();
+  });
+
+  // ---- 4b) Project card: expandable full description ------------------
+  // Reuses the song-card .is-expanded toggle convention. One delegated
+  // listener on #panels catches all ".project-more" button clicks and flips
+  // .is-expanded on the enclosing .project-item. CSS reveals .project-full.
+  panelsWrap.addEventListener("click", function (e) {
+    var moreBtn = e.target.closest(".project-more");
+    if (!moreBtn) return;
+    var item = moreBtn.closest(".project-item");
+    if (!item) return;
+    var open = item.classList.toggle("is-expanded");
+    moreBtn.setAttribute("aria-expanded", open ? "true" : "false");
   });
 
   function closeLightbox() {

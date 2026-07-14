@@ -49,10 +49,10 @@ myta-catalogue/
 ├── style.css            # theme, layout, room/panel styling
 ├── script.js            # hotspot wiring, panels, clock, timeline, lightbox, shuffle player
 ├── songs.js              # music track data (single source of truth for the Music panel)
-├── mainPic.jpg           # the shelf photo the whole room is built on
-├── corkBoard.jpg          # full-size corkboard image
 ├── favicon/               # favicon set
 └── assets/
+    ├── misc/               # room photo, corkboard, devlog + project images
+    ├── credits/            # credit images
     ├── music/              # OST + tracks
     ├── sfx/                # VCR insert sound effect
     ├── art/                # drawings/sketchbook images
