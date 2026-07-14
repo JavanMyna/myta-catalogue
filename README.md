@@ -1,8 +1,16 @@
-﻿﻿# MytaCatalogue
+# MytaCatalogue
 
 An interactive, diorama-style personal portfolio. Instead of a scrolling homepage, the front door is a photo of my actual DIY shelf setup — click around the room to explore my music, photography, drawings, and projects.
 
 > Successor to [Myna Catalogue](https://javanmyna.github.io/myna-catalogue/), rebuilt around a "clickable room" concept instead of a traditional layout.
+
+## Live
+https://javanmyna.github.io/myta-catalogue/
+
+## Screenshots
+
+<img width="1366" height="635" alt="image" src="https://github.com/user-attachments/assets/e8ea3d86-00e6-45b3-969e-7319da5758e8" />
+<img width="1366" height="635" alt="image" src="https://github.com/user-attachments/assets/9045934d-d28e-4da9-ba11-4e499775cb59" />
 
 ## Concept
 
@@ -77,8 +85,3 @@ Actively being built — hotspot positions were mapped from a wireframe sketch o
 ## Credits
 
 Built by [JavanMyna](https://github.com/JavanMyna). Predecessor project: [Myna Catalogue](https://javanmyna.github.io/myna-catalogue/).
-
-## Screenshots
-
-<img width="1366" height="635" alt="image" src="https://github.com/user-attachments/assets/e8ea3d86-00e6-45b3-969e-7319da5758e8" />
-<img width="1366" height="635" alt="image" src="https://github.com/user-attachments/assets/9045934d-d28e-4da9-ba11-4e499775cb59" />
