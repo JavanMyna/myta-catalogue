@@ -15,6 +15,7 @@
 
   var splash = document.getElementById("splash");
   var ost = document.getElementById("ost");
+  var vcr = document.getElementById("vcr");
   var room = document.getElementById("room");
   var panelsWrap = document.getElementById("panels");
   var lightbox = document.getElementById("lightbox");
@@ -22,6 +23,48 @@
   var lightboxCaption = document.getElementById("lightbox-caption");
   var musicPanel = document.getElementById("panel-music");
   var musicTracks = document.getElementById("music-tracks");
+
+  // ---- SFX system (Feature 3) ----------------------------------------
+  // One-shot UI sounds created as preloaded Audio() nodes so the first
+  // play has no delay. Each node is a SINGLE stream, so rapid taps can never
+  // "stack" overlapping audio — replaying just restarts the same stream.
+  // playSfx() additionally debounces taps that arrive within guardMs so
+  // machine-gunning doesn't constantly cut the sound back to its start.
+  //
+  // Chosen from assets/sfx/ (see report in chat):
+  //   open  -> clickMouse.wav   (mouse click for opening panels)
+  //   close -> clickMouse2.wav  (a second click for closing — distinct take)
+  //   switch-> clickSwitch.mp3  (used for BOTH on and off; only one exists)
+  var sfxOpen   = new Audio("assets/sfx/clickMouse.wav");
+  var sfxClose  = new Audio("assets/sfx/clickMouse2.wav");
+  var sfxSwitch = new Audio("assets/sfx/clickSwitch.mp3");
+  [sfxOpen, sfxClose, sfxSwitch].forEach(function (a) { a.preload = "auto"; a.volume = 0.35; });
+
+  // play() that never throws — browsers may block autoplay and reject the
+  // returned Promise even after a user gesture; we want to fail silently.
+  function playSafely(audio) {
+    if (!audio) return;
+    try {
+      var p = audio.play();
+      if (p && typeof p.then === "function") {
+        p.catch(function (err) { console.log("Audio blocked:", err); });
+      }
+    } catch (err) {
+      console.log("Audio threw:", err);
+    }
+  }
+
+  // Play a one-shot UI sound with a debounce guard.
+  function playSfx(audio, guardMs) {
+    if (!audio) return;
+    guardMs = guardMs || 120;
+    var now = (window.performance && performance.now) ? performance.now() : Date.now();
+    if (audio._t && now - audio._t < guardMs) return;   // too soon: ignore
+    audio._t = now;
+    try { audio.currentTime = 0; } catch (e) {}         // rewind so a re-tap restarts
+    audio.loop = false;
+    playSafely(audio);
+  }
 
   // ---- 4b) Gallery metadata (from the old MynaCatalogue script.js) ------
   // Maps image filenames to titles/medium/date/desc so the lightbox can show
@@ -101,62 +144,44 @@
     return null;
   }
 
-  // ---- 1) Splash click: buffer OST, then hide splash + play ------------
-  // readyState 4 = HAVE_ENOUGH_DATA: the browser has downloaded enough to
-  // play through without stopping. If we play before this, the audio stutters
-  // because it's still loading. So we wait for it.
-  var splashLoading = document.querySelector(".splash-loading");
+  // ---- 1) Splash click: VCR insert SFX, then OST (Dazed) on its `ended` -
+  // Feature 1: click-to-enter plays the cassette-insert SFX first, and the
+  // background OST starts only when that SFX fires its `ended` event — no
+  // fixed setTimeout, because durations drift. Both files are preloaded
+  // (see <link rel="preload"> in index.html + preload="auto" on the
+  // <audio> tags) so there's no gap before the SFX starts.
   var entryStarted = false; // guard against double-clicks
 
   function enterSite() {
     if (entryStarted) return;
     entryStarted = true;
 
-    // If the OST is already buffered enough, enter right away.
-    if (!ost || ost.readyState >= 4) {
-      doEntry();
-      return;
-    }
-
-    // Not buffered yet: show "loading audio..." and wait.
-    // The browser fires "canplaythrough" when it has enough data to play
-    // without stopping. We listen once, then enter.
-    if (splashLoading) splashLoading.hidden = false;
-    splash.classList.add("is-loading");
-
-    function onReady() { doEntry(); }
-
-    ost.addEventListener("canplaythrough", onReady, { once: true });
-    // Safety net: if the file is huge / network is slow, don't wait forever.
-    // After 8 seconds, just enter and let it buffer while playing.
-    window.setTimeout(function () {
-      ost.removeEventListener("canplaythrough", onReady);
-      if (!splash.classList.contains("is-hidden")) doEntry();
-    }, 8000);
-  }
-
-  // doEntry = the actual "fade splash + play OST" logic.
-  function doEntry() {
-    splash.classList.remove("is-loading");
-    if (splashLoading) splashLoading.hidden = true;
+    // Keep the existing visual entry transition: fade the splash out, then
+    // remove it from layout. Runs concurrently with the VCR SFX.
     splash.classList.add("is-hidden"); // fade out (CSS opacity transition)
-
-    // Fully remove the splash from layout after the fade. Two triggers:
-    //   transitionend = fires when the fade finishes (fast path)
-    //   setTimeout = fires after 700ms no matter what (fallback)
     var hideSplash = function () { splash.classList.add("is-gone"); };
     splash.addEventListener("transitionend", hideSplash, { once: true });
-    window.setTimeout(hideSplash, 700);
+    window.setTimeout(hideSplash, 700); // fallback if transitionend doesn't fire
 
-    // Play the OST. .play() returns a Promise; if the browser refuses,
-    // we log it instead of crashing.
-    if (ost) {
-      ost.loop = false; // play once, do not loop
-      var p = ost.play();
-      if (p && typeof p.then === "function") {
-        p.catch(function (err) { console.log("Audio could not autoplay:", err); });
-      }
+    // Audio sequence: VCR SFX -> (on ended) -> OST.
+    if (vcr) {
+      try { vcr.currentTime = 0; } catch (e) {}
+      vcr.loop = false;
+      // Start the OST when the SFX finishes. { once: true } so it runs once.
+      vcr.addEventListener("ended", startOst, { once: true });
+      playSafely(vcr);
+    } else {
+      // No SFX element present (shouldn't happen): fall back to just the OST.
+      startOst();
     }
+  }
+
+  // Start the background OST once, not looped.
+  function startOst() {
+    if (!ost) return;
+    try { ost.currentTime = 0; } catch (e) {}
+    ost.loop = false;
+    playSafely(ost);
   }
 
   splash.addEventListener("click", enterSite);
@@ -164,15 +189,29 @@
     if (e.key === "Enter" || e.key === " ") { e.preventDefault(); enterSite(); }
   });
 
-  // ---- 1b) Light switch: turn on the room lights -----------------------
-  // The room starts dark (.is-dark on #room). Clicking the light switch
-  // removes that class, which transitions the image to full brightness and
-  // un-dims all the hotspot dots. One-way: once on, it stays on.
+  // ---- 1b) Light switch: toggle the room lights on AND off (Feature 4) --
+  // The room starts dark (.is-dark on #room). Toggling the switch flips that
+  // class: removing it brightens the image + un-dims hotspot dots; adding it
+  // back reverses exactly that (brightness, dot dim, stronger scanlines — all
+  // driven by .is-dark in CSS). State is kept in a `lightsOn` boolean so the
+  // switch stays in sync even if the room is re-rendered by other code.
   var lightSwitch = document.getElementById("light-switch");
+  var lightsOn = false; // starts OFF (room is dark until first click)
+
+  function setLights(on) {
+    lightsOn = on;
+    if (on) room.classList.remove("is-dark");
+    else    room.classList.add("is-dark");
+    if (lightSwitch) lightSwitch.setAttribute("aria-pressed", on ? "true" : "false");
+    // clickSwitch.mp3 is the only switch sound in assets/sfx/, so it's used for
+    // both on and off. Flagged in the report: a distinct off-state SFX is wanted.
+    playSfx(sfxSwitch, 160);
+  }
+
   if (lightSwitch && room) {
     lightSwitch.addEventListener("click", function (e) {
       e.stopPropagation(); // don't let it bubble to the room click handler
-      room.classList.remove("is-dark");
+      setLights(!lightsOn);
     });
   }
 
@@ -191,6 +230,10 @@
     var panel = document.getElementById(id);
     if (!panel) { console.log("No panel with id:", id); return; }
 
+    // Guard: if this panel is already open, don't open it again — otherwise
+    // a rapid double-click would stack a second backdrop (and the open SFX).
+    if (!panel.hidden) return;
+
     var backdrop = document.createElement("div");
     backdrop.className = "panel-backdrop";
     document.body.appendChild(backdrop);
@@ -199,11 +242,19 @@
     panel.hidden = false;
     backdrop.addEventListener("click", function () { closePanel(panel); });
     updateScrollLock();
+
+    // Feature 3: subtle open click. Debounced so double-taps don't machine-gun.
+    playSfx(sfxOpen, 120);
+
+    // Feature 2: lazily fetch the live visitor count when this panel opens.
+    if (id === "panel-visitors") loadVisitorCount();
   }
 
   room.addEventListener("click", function (e) {
     var spot = e.target.closest(".hotspot");
     if (!spot) return;
+    // The light switch is its own handler (above) with stopPropagation, so it
+    // never reaches here. Other hotspots open a panel.
     var panelId = spot.getAttribute("data-panel");
     if (!panelId) return; // TODO hotspots: no panel yet, ignore without erroring
     openPanel(panelId);
@@ -215,6 +266,8 @@
     panel.hidden = true;
     if (panel._backdrop) { panel._backdrop.remove(); panel._backdrop = null; }
     updateScrollLock();
+    // Feature 3: subtle close click, distinct take from the open sound.
+    playSfx(sfxClose, 120);
   }
 
   // "Scroll lock" = overflow:hidden on <body> so the page behind a panel
@@ -529,7 +582,55 @@
     shuffleAudio.addEventListener("ended", shuffleNext);
   }
 
-  // ---- 9) Functional clock (UTC+8) -------------------------------------
+  // ---- 9) GoatCounter visitor count (Feature 2) ------------------------
+  // GoatCounter exposes a public, auth-free JSON endpoint for exactly this:
+  //   https://<code>.goatcounter.com/counter/TOTAL.json  ->  { "count": "1,234" }
+  // The special path TOTAL (case-sensitive, no leading slash) gives the
+  // site-WIDE total instead of a single page's. The number is cached up to
+  // ~4h on GoatCounter's side, so it won't update in real time.
+  //
+  // We derive the GoatCounter base URL from the page's own count-script tag
+  // (data-goatcounter="https://mynko.goatcounter.com/count") rather than
+  // hardcoding the code, so this keeps working if the site is re-pointed.
+  // Anything beyond total pageviews (referrers/locations/browsers) needs the
+  // authenticated /api/v0/stats/* endpoints + a Bearer token — see the TODO
+  // in index.html; that must live in a serverless proxy, never client-side.
+  var visitorCountEl = document.getElementById("visitor-count");
+  var visitorCountLoaded = false;
+
+  function loadVisitorCount() {
+    if (!visitorCountEl || visitorCountLoaded) return;
+    visitorCountLoaded = true; // fetch at most once per page load
+    visitorCountEl.textContent = "...";
+    visitorCountEl.classList.remove("is-error");
+
+    var gcScript = document.querySelector("script[data-goatcounter]");
+    var gcBase = "https://mynko.goatcounter.com";
+    if (gcScript) {
+      var attr = gcScript.getAttribute("data-goatcounter") || "";
+      gcBase = attr.replace(/\/count\/?$/, "") || gcBase;
+    }
+    var url = gcBase + "/counter/TOTAL.json";
+
+    fetch(url, { cache: "no-store" })
+      .then(function (r) {
+        if (!r.ok) throw new Error("GC " + r.status);
+        return r.json();
+      })
+      .then(function (d) {
+        var n = d && d.count ? String(d.count) : "";
+        visitorCountEl.textContent = n || "—";
+        if (!n) visitorCountEl.classList.add("is-error");
+      })
+      .catch(function (err) {
+        // CORS off or setting disabled — fail to a quiet "—" rather than crashing.
+        console.log("GoatCounter count failed:", err);
+        visitorCountEl.textContent = "—";
+        visitorCountEl.classList.add("is-error");
+      });
+  }
+
+  // ---- 10) Functional clock (UTC+8) -------------------------------------
   // toLocaleTimeString with timeZone: "Asia/Kuala_Lumpur" gives UTC+8 time.
   // We update once per second with setInterval. The clock only runs while
   // the clock panel is open (to avoid wasting CPU when hidden).
