@@ -18,7 +18,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pixelify+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
   <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="css/signWall.css" />
+  <!-- signWall.css is only used inside the Sign Wall panel (one of 13, and
+       most visits never open it). Loading it as a render-blocking stylesheet
+       in <head> paid 9.3KB + a connection slot on every first paint for
+       nothing. This preload-then-swap pattern fetches it at low priority
+       without blocking the splash, then flips rel to "stylesheet" once
+       loaded so it applies. The Sign Wall panel itself stays [hidden] until
+       the user opens it, so there is no FOUC window for a visitor to see.
+       (Fix #4, performance pass.) -->
+  <link rel="preload" href="css/signWall.css" as="style" onload="this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="css/signWall.css"></noscript></noscript>
 
   <!-- Preload the two intro-audio files so there is no gap between the
        click-to-enter and the VCR insert SFX starting. (Feature 1) -->
@@ -430,7 +439,7 @@
       </div>
       <div class="panel-body">
         <div class="about-block">
-          <img class="about-photo" src="assets/photography/people/fred01.jpg" alt="Photo of Fred">
+          <img class="about-photo" loading="lazy" src="assets/photography/people/fred01.jpg" alt="Photo of Fred">
           <div class="about-text">
             <!-- REPLACE: about-me text -->
             <p>Hi, I'm Fred, I make things.</p>
@@ -623,7 +632,7 @@
         The 91% was my trial exam mark for math (semester 2).
         Bottom left corner : POV of my study table in matrics.
         </p>
-        <img class="full-img" src="assets/misc/corkBoard.jpg" alt="The whole corkboard / drawing board">
+        <img class="full-img" loading="lazy" src="assets/misc/corkBoard.jpg" alt="The whole corkboard / drawing board">
       </div>
     </section>
 
@@ -638,7 +647,7 @@
       <div class="panel-body">
         <p class="panel-intro">a piece I made when I was burnt out</p>
         <p class="corkboard-desc">I made this when I was burnt out in matrics</p>
-        <img class="full-img" src="assets/art/shatteredGlass.jpg" alt="Shattered Glass — made during matrics burnout">
+        <img class="full-img" loading="lazy" src="assets/art/shatteredGlass.jpg" alt="Shattered Glass — made during matrics burnout">
       </div>
     </section>
 

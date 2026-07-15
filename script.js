@@ -25,18 +25,22 @@
   var musicTracks = document.getElementById("music-tracks");
 
   // Images to warm into the cache when the user clicks to enter (see
-  // enterSite). Curated, not exhaustive — full-size panel images that would
-  // otherwise show a blank gap, the about photo, and the first few drawings
-  // thumbnails. The rest of the gallery stays loading="lazy".
+  // enterSite). Curated, not exhaustive — kept tight on purpose.
+  //
+  // What's warmed here vs. left to lazy-load:
+  //   - corkBoard.jpg / shatteredGlass.jpg: <img class="full-img"> panels
+  //     whose entire content is one big image shown the moment the panel
+  //     opens. Warming here makes those panels instant.
+  //   - All other panel thumbnails already have loading="lazy" + a fixed
+  //     aspect-ratio slot (CSS .panel-thumb), so they fetch as the user
+  //     scrolls and don't shift layout. Warming them on enterSite was
+  //     15+MB of bandwidth competing with the audio pipeline (Part 1 brief)
+  //     for no perceptible UX gain — dropped from this list.
+  //   - The About portrait (fred01.jpg) is also a small 220px box fetched
+  //     on first visit to the About panel; not worth warming either.
   var PRELOAD_IMAGES = [
     "assets/misc/corkBoard.jpg",
-    "assets/art/shatteredGlass.jpg",
-    "assets/photography/people/fred01.jpg",
-    "assets/art/antformicidae.jpg",
-    "assets/art/art_2024sukanDay.jpg",
-    "assets/art/art_classmate01.jpg",
-    "assets/art/art_kmlcat.jpg",
-    "assets/art/art_miko.jpg"
+    "assets/art/shatteredGlass.jpg"
   ];
 
   // ---- SFX system (Feature 3) ----------------------------------------
@@ -103,7 +107,15 @@
   // STOP is instant — no debounce — so music cuts the bed the moment it begins.
   var roomTone = new Audio("assets/sfx/loop_roomTone.mp3");
   roomTone.loop = true;
-  roomTone.preload = "auto";          // start fetching immediately so it's ready on entry
+  roomTone.preload = "none";           // defer the fetch — the bed can't play
+                                       // before enterSite() sets audioUnlocked
+                                       // anyway, so preloading it at page parse
+                                       // only competes with the LCP mainPic.jpg
+                                       // and the VCR SFX the visitor is about to
+                                       // need. enterSite() flips this to "auto"
+                                       // on the first user gesture so the 595KB
+                                       // bed is buffered well before the OST
+                                       // ends and the bed needs to fade in.
   roomTone.volume = 0;                 // fade in/out drives the real volume
   var ROOM_TONE_VOL = 0.12;            // low — it's a bed, not foreground
   var activeAudio = new Set();         // audio elements currently making sound
@@ -273,6 +285,16 @@
     if (entryStarted) return;
     entryStarted = true;
     audioUnlocked = true;   // room-tone bed may now start when the site is idle
+
+    // Now that we have a user gesture, kick off the room-tone bed fetch. It
+    // was left at preload="none" at page parse so its 595KB wouldn't compete
+    // with mainPic.jpg / the VCR SFX on first paint. The bed can't actually
+    // play until audioUnlocked is true AND no other music is playing, so by
+    // the time it's needed (OST ends / a track ends) it has had the whole
+    // VCR intro window to finish loading. (Fix #3, performance pass.)
+    if (roomTone) {
+      try { roomTone.preload = "auto"; roomTone.load(); } catch (e) {}
+    }
 
     // Preload a curated subset of images so visiting common panels feels
     // instant. We warm the browser cache with `new Image()` (no DOM insert)
