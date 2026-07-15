@@ -812,13 +812,14 @@
   <!-- Song data (copied from MynaCatalogue; single source of truth for the music panel) -->
   <script src="songs.js"></script>
 
-  <!-- Sign Wall (guestbook): Supabase JS client (UMD CDN build, exposes
-       window.supabase) -> our client init (window.sb) -> the wall logic.
-       Load order matters: supabaseClient.js depends on the SDK global;
-       signWall.js depends on window.sb from supabaseClient.js. The anon
-       key is public-by-design; RLS is the real boundary (see sql/signs_schema.sql). -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase-js.min.js"></script>
-  <script src="js/supabaseClient.js"></script>
+  <!-- Sign Wall (guestbook): Supabase JS client (imported as an ES module
+       from the jsdelivr +esm CDN bundle) -> our client init (window.sb) ->
+       the wall logic (a classic script that reads window.sb). Load order
+       is fine: the module is deferred, and signWall.js only calls window.sb
+       inside fetchSigns(), which runs on the user's first panel-open (well
+       after the module has finished). The anon key is public-by-design;
+       RLS is the real boundary (see sql/signs_schema.sql). -->
+  <script type="module" src="js/supabaseClient.js"></script>
   <script src="js/signWall.js"></script>
 
   <script src="script.js"></script>
