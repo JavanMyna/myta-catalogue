@@ -183,8 +183,11 @@
   var artData = {
     "antformicidae.jpg": { t:"Antformicidae", med:"Sketches", date:"2025", desc:"Something my best friend said to me that sticked throughout my matrics journey." },
     "art_2024sukanDay.jpg": { t:"Sukan Day", med:"Sketches", date:"2024" },
+    "art_churchObservation.jpg": { t:"Church Observation", med:"Sketches", date:"2025" },
     "art_classmate01.jpg": { t:"Classmate 01", med:"Sketches", date:"2024" },
     "art_classmate02.jpg": { t:"Classmate 02", med:"Sketches", date:"2024" },
+    "art_highschoolClass5Amanah.jpg": { t:"5 Amanah Highschool class", med:"Sketches", date:"2025" },
+    "art_jejaka313.jpg": { t:"Jejaka 3.13", med:"Poster", date:"2025", desc:"A poster drawing of my roommates in matrics" },
     "art_kmlcat.jpg": { t:"KML Cat", med:"Sketches", date:"2025", desc:"I seriously feel like everytime I eat in my college cafe, there's always times like this" },
     "art_kmlPoster.jpg": { t:"KML Poster", med:"Poster", date:"2025", desc:"I joined the college's art exhibition and put up the poster I drew weeks prior." },
     "art_miko.jpg": { t:"Miko", med:"Sketches", date:"2025", desc:"Mom sent me a cute pictures of cats and it made wanted to draw my cat in the same artstyle." },
@@ -197,8 +200,10 @@
     "art_rkgk02.jpg": { t:"RKGK 02", med:"Sketches", date:"2024" },
     "art_rkgk03.jpg": { t:"RKGK 03", med:"Sketches", date:"2024" },
     "art_rkgk04.jpg": { t:"RKGK 04", med:"Sketches", date:"2024" },
+    "art_workingGrandma.jpg": { t:"Working grandmother", med:"Sketches", date:"2025" },
     "comic_chineseHumor.jpg": { t:"Chinese Humor", med:"Comic", date:"2025", desc:"I was in the local massive pet store and I overheard a conversation from a family." },
-    "shatteredGlass.jpg": { t:"Shattered Glass", med:"Sketches", date:"2025", desc:"I made this when I was burnt out in matrics" }
+    "comic_lightningStrike.jpg": { t:"Lightning strike", med:"Comic", date:"2025", desc:"Drew by my lil brother who was accompanying me at a library" },
+    "shatteredGlass.jpg": { t:"Shattered Glass", med:"Sketches", date:"2025", desc:"I made this when I was burnt out in matrics." }
   };
 
   // Cat-specific titles (from the old script.js catTitle function)
@@ -281,23 +286,66 @@
       img.src = src;
     });
 
-    // Keep the existing visual entry transition: fade the splash out, then
-    // remove it from layout. Runs concurrently with the VCR SFX.
-    splash.classList.add("is-hidden"); // fade out (CSS opacity transition)
-    var hideSplash = function () { splash.classList.add("is-gone"); };
-    splash.addEventListener("transitionend", hideSplash, { once: true });
-    window.setTimeout(hideSplash, 700); // fallback if transitionend doesn't fire
+    // Show the loading indicator immediately so the click is never silent —
+    // a first-time visitor on a slow connection otherwise sees an inert
+    // splash while the VCR SFX finishes decoding. CSS (.is-loading) hides
+    // the "click to enter" / "headphones" lines and reveals .splash-loading
+    // (already in the DOM, just hidden) until we kick off the audio.
+    var loadingEl = splash.querySelector(".splash-loading");
+    splash.classList.add("is-loading");
+    if (loadingEl) loadingEl.hidden = false;
 
-    // Audio sequence: VCR SFX -> (on ended) -> OST.
-    if (vcr) {
-      try { vcr.currentTime = 0; } catch (e) {}
-      vcr.loop = false;
-      // Start the OST when the SFX finishes. { once: true } so it runs once.
-      vcr.addEventListener("ended", startOst, { once: true });
-      playSafely(vcr);
+    // Begin the visual + audio entry sequence. Called once the VCR SFX is
+    // far enough along to start without an audible stall (readyState >= 3,
+    // HAVE_FUTURE_DATA) — or immediately if it's already there (cached).
+    function beginSequence() {
+      splash.classList.remove("is-loading");
+      if (loadingEl) loadingEl.hidden = true;
+
+      // Keep the existing visual entry transition: fade the splash out, then
+      // remove it from layout. Runs concurrently with the VCR SFX.
+      splash.classList.add("is-hidden"); // fade out (CSS opacity transition)
+      var hideSplash = function () { splash.classList.add("is-gone"); };
+      splash.addEventListener("transitionend", hideSplash, { once: true });
+      window.setTimeout(hideSplash, 700); // fallback if transitionend doesn't fire
+
+      // Audio sequence: VCR SFX -> (on ended) -> OST.
+      if (vcr) {
+        try { vcr.currentTime = 0; } catch (e) {}
+        vcr.loop = false;
+        // Start the OST when the SFX finishes. { once: true } so it runs once.
+        vcr.addEventListener("ended", startOst, { once: true });
+        playSafely(vcr);
+      } else {
+        // No SFX element present (shouldn't happen): fall back to just the OST.
+        startOst();
+      }
+    }
+
+    // Start the sequence as soon as the VCR SFX has enough buffered data. For
+    // returning visitors the file is cached and readyState is already 4
+    // (HAVE_ENOUGH_DATA), so this fires synchronously and there's no new
+    // delay. For first-time visitors on a slow link, the browser decodes
+    // what it has before playing, and the loading indicator bridges the gap.
+    if (vcr && vcr.readyState < 3) {
+      var armed = false;
+      function onVfxReady() {
+        if (armed) return;
+        armed = true;
+        vcr.removeEventListener("canplaythrough", onVfxReady);
+        vcr.removeEventListener("canplay", onVfxReady);
+        beginSequence();
+      }
+      vcr.addEventListener("canplaythrough", onVfxReady);
+      vcr.addEventListener("canplay", onVfxReady);
+      // Safety: never let a stalled load hold the visitor at the splash
+      // forever. 4s is well past the point where "loading…" has stopped
+      // looking responsive; play whatever we have (playSafely fails silently).
+      window.setTimeout(onVfxReady, 4000);
     } else {
-      // No SFX element present (shouldn't happen): fall back to just the OST.
-      startOst();
+      // Already buffered (cached visit) or no SFX tag — go immediately so
+      // returning visitors still feel an instant response.
+      beginSequence();
     }
   }
 
