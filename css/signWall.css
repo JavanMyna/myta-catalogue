@@ -120,9 +120,6 @@
   white-space: pre-wrap;
   word-break: break-word;
   overflow-wrap: anywhere;
-  overflow: hidden;
-  /* cap the visible area so very long messages don't spill onto neighbors */
-  max-height: 4.6em;
 }
 
 /* Optimistic sign: dimmed, dashed border until the DB confirms the insert.
@@ -312,6 +309,117 @@
   cursor: not-allowed;
 }
 
+/* Rate-limit notice inside the compose modal.
+   Inherits the same .signmodal-frame/.signmodal-bar frame so it looks
+   consistent — just swaps the textarea for a message + "ok" button. */
+.signmodal-rated-msg {
+  font-family: var(--font-head);
+  font-size: 11px;
+  color: var(--red-bright);
+  line-height: 1.5;
+  text-align: center;
+  margin: 0 0 16px 0;
+}
+.signmodal-rated-actions {
+  display: flex;
+  justify-content: center;
+}
+.signmodal-rated-close {
+  font-family: var(--font-head);
+  font-size: 10px;
+  background: transparent;
+  border: 1px solid var(--red-dim);
+  color: var(--red-bright);
+  padding: 7px 20px;
+  cursor: pointer;
+  line-height: 1;
+}
+.signmodal-rated-close:hover {
+  background: var(--red);
+  color: #fff;
+  border-color: var(--red);
+}
+
+/* ---- View modal (read-only sign viewer) ---------------------------------
+   Matches .signmodal conventions so the two modals feel like siblings:
+   same frame, bar, close button, and backdrop. Body shows the full sign
+   text with optional date below. */
+.signview[hidden] { display: none !important; }
+
+.signview {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 46;                 /* one above compose (45) so view sits on top */
+  padding: 20px;
+}
+
+.signview-frame {
+  width: min(90vw, 320px);
+  max-width: 420px;
+  background: var(--panel-bg);
+  border: 2px solid var(--red);
+  box-shadow: 0 0 0 4px #000, 0 0 28px rgba(209, 26, 26, 0.4),
+              0 20px 50px rgba(0, 0, 0, 0.8);
+  animation: pop-in .18s ease;
+}
+
+.signview-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: var(--red);
+  color: #fff;
+}
+.signview-title {
+  font-family: var(--font-head);
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+.signview-close {
+  font-family: var(--font-head);
+  font-size: 12px;
+  background: transparent;
+  border: 1px solid #fff;
+  color: #fff;
+  width: 26px;
+  height: 26px;
+  cursor: pointer;
+  line-height: 1;
+}
+.signview-close:hover { background: #fff; color: var(--red); }
+
+.signview-body {
+  padding: 20px 16px;
+}
+.signview-text {
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.4;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  text-align: center;
+  /* Long messages can scroll within the view modal (rare but safe). */
+  max-height: 50vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--red-dim) transparent;
+}
+.signview-date {
+  font-family: var(--font-head);
+  font-size: 9px;
+  color: var(--red-dim);
+  text-align: center;
+  margin-top: 14px;
+  margin-bottom: 0;
+}
+
 /* Small disclaimer under the wall. */
 .sign-note {
   font-family: var(--font-body);
@@ -326,6 +434,8 @@
    via their %-based width already, so no override needed there. */
 @media (max-width: 480px) {
   .signmodal-frame { width: 94vw; }
+  .signview-frame { width: 94vw; }
   .sign-text { font-size: 8px; }
+  .signview-text { font-size: 14px; }
   .wall-loading, .wall-empty, .wall-error, .wall-disabled { font-size: 9px; }
 }

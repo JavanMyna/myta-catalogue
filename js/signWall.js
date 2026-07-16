@@ -41,6 +41,7 @@
   var GRID_COLS = 12;
   var GRID_ROWS = 8;
   var MAX_CHARS = 60; // matches the DB CHECK constraint in signs_schema.sql
+  var PREVIEW_CHARS = 40; // char cap for grid-cell preview before "…"
 
   // localStorage flag for the 24h, one-sign-per-browser rate limit.
   var RATE_KEY = "signWall_lastSubmit";
@@ -66,8 +67,9 @@
   if (!wallEl || !blocksEl || !overlayEl) return;
 
   // ---- state -----------------------------------------------------------
-  var placed = new Map();   // "x,y" -> { id, text, gx, gy, el, optimistic }
-  var modalOpen = false;    // Esc handler rewires when this is true
+  var placed = new Map();   // "x,y" -> { id, text, gx, gy, el, optimistic, created_at }
+  var modalOpen = false;    // Esc handler rewires when compose modal is up
+  var viewModalOpen = false; // Esc handler rewires when view modal is up
   var pendingCell = null;   // { gx, gy } for the cell currently in the modal
   var fetching = false;
 
@@ -117,6 +119,20 @@
     return Math.max(0, RATE_MS - (Date.now() - t));
   }
 
+  // Truncate text for grid-cell preview, breaking on a word boundary
+  // and appending "…" so it's clear there's more to read.
+  function truncatePreview(text, maxLen) {
+    if (text.length <= maxLen) return text;
+    var preview = text.substring(0, maxLen);
+    var lastSpace = preview.lastIndexOf(" ");
+    // Only back up if the space is somewhere in the last ~40% of the string;
+    // if the whole string is one word, just hard-chop and add "…".
+    if (lastSpace > maxLen * 0.5) {
+      preview = preview.substring(0, lastSpace);
+    }
+    return preview + "\u2026"; // ellipsis character
+  }
+
   // fmt a remaining duration as "Xh Ym" for the rate-limit notice.
   function fmtRemaining(ms) {
     var m = Math.ceil(ms / 60000);
@@ -124,6 +140,16 @@
     var h = Math.floor(m / 60);
     var rem = m % 60;
     return rem ? h + "h " + rem + "m" : h + "h";
+  }
+
+  // Format an ISO-ish timestamptz string to something readable.
+  function fmtDate(isoStr) {
+    if (!isoStr) return "";
+    try {
+      var d = new Date(isoStr);
+      if (isNaN(d.getTime())) return "";
+      return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "2-digit" });
+    } catch (e) { return ""; }
   }
 
   // ---- block grid (visual only, no per-cell listeners) ------------------
@@ -149,6 +175,8 @@
   // ---- rendering signs --------------------------------------------------
   // Render one sign sprite into the overlay layer. textContent only — never
   // innerHTML — so a visitor can't inject markup into the wall.
+  // Grid preview is truncated with "…"; full text is stored in a data attr
+  // so the view modal can show the real message.
   function renderSign(sign) {
     if (placed.has(cellKey(sign.gx, sign.gy))) return; // cell already taken
     var pos = cellCenterPct(sign.gx, sign.gy);
@@ -163,7 +191,13 @@
 
     var text = document.createElement("span");
     text.className = "sign-text";
-    text.textContent = sign.text; // safe: no HTML injection
+    var preview = truncatePreview(sign.text, PREVIEW_CHARS);
+    // Use a zero-width non-joiner so screen-reader spelling doesn't jumble,
+    // but visual "…" signals truncation.
+    text.textContent = preview;
+    // Store the full text for the view modal; truncated=exact original when
+    // no ellipsis was added, so view always shows full message.
+    text.setAttribute("data-full-text", sign.text);
     board.appendChild(text);
 
     el.appendChild(board);
@@ -175,7 +209,8 @@
       gx: sign.gx,
       gy: sign.gy,
       el: el,
-      optimistic: !!sign.optimistic
+      optimistic: !!sign.optimistic,
+      created_at: sign.created_at || null
     });
   }
 
@@ -214,7 +249,7 @@
 
     window.sb
       .from("signs")
-      .select("id,text,grid_x,grid_y")
+      .select("id,text,grid_x,grid_y,created_at")
       .eq("approved", true)
       .order("created_at", { ascending: false })
       .then(function (res) {
@@ -244,7 +279,7 @@
           // Ensure unique cell: earlier rows win (DESC created_at => newest
           // first), identical cells from a race are deduped here.
           if (!placed.has(cellKey(r.grid_x, r.grid_y))) {
-            renderSign({ id: r.id, text: r.text, gx: r.grid_x, gy: r.grid_y });
+            renderSign({ id: r.id, text: r.text, gx: r.grid_x, gy: r.grid_y, created_at: r.created_at });
           }
         }
         if (placed.size === 0) showState("empty");
@@ -267,15 +302,25 @@
   wallEl.addEventListener("click", function (e) {
     if (!window.sb) return; // disabled (unconfigured) -> ignore clicks
     if (fetching) return;   // still loading -> ignore
-    if (modalOpen) return;  // modal already up -> ignore stray clicks
+    if (modalOpen || viewModalOpen) return; // any modal already up -> ignore
+
     var cell = eventCell(e);
     if (!cell) return;
-    if (placed.has(cellKey(cell.gx, cell.gy))) return; // occupied -> ignore
 
-    if (rateLimited()) {
-      toast("one sign per day — come back in " + fmtRemaining(rateRemainingMs()));
+    // Occupied cell: open view modal to show the full message.
+    var existing = placed.get(cellKey(cell.gx, cell.gy));
+    if (existing) {
+      openViewModal(existing);
       return;
     }
+
+    // Empty cell but rate-limited: show the rate-limit notice instead of
+    // the compose form so the user gets a clear, persistent message.
+    if (rateLimited()) {
+      openRateLimitModal();
+      return;
+    }
+
     openModal(cell);
   });
 
@@ -322,14 +367,24 @@
           // Honeypot: hidden from humans, attractive to bots. Silently dropped
           // on submit; never labelled visibly.
           '<input class="signmodal-hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">' +
-          '<textarea class="signmodal-text" rows="4" cols="15" maxlength="' + MAX_CHARS + '" placeholder="your message"></textarea>' +
-          '<div class="signmodal-foot">' +
-            '<span class="signmodal-counter" aria-live="polite">0 / ' + MAX_CHARS + '</span>' +
-            '<span class="signmodal-error" role="alert"></span>' +
+          // Compose section (hidden when rate-limited).
+          '<div class="signmodal-compose">' +
+            '<textarea class="signmodal-text" rows="4" cols="15" maxlength="' + MAX_CHARS + '" placeholder="your message"></textarea>' +
+            '<div class="signmodal-foot">' +
+              '<span class="signmodal-counter" aria-live="polite">0 / ' + MAX_CHARS + '</span>' +
+              '<span class="signmodal-error" role="alert"></span>' +
+            '</div>' +
+            '<div class="signmodal-actions">' +
+              '<button type="button" class="signmodal-cancel" data-close>cancel</button>' +
+              '<button type="button" class="signmodal-submit">place</button>' +
+            '</div>' +
           '</div>' +
-          '<div class="signmodal-actions">' +
-            '<button type="button" class="signmodal-cancel" data-close>cancel</button>' +
-            '<button type="button" class="signmodal-submit">place</button>' +
+          // Rate-limit notice (shown instead of compose when blocked).
+          '<div class="signmodal-rated" hidden>' +
+            '<p class="signmodal-rated-msg"></p>' +
+            '<div class="signmodal-rated-actions">' +
+              '<button type="button" class="signmodal-rated-close" data-close>ok</button>' +
+            '</div>' +
           '</div>' +
         '</div>' +
       '</div>';
@@ -375,6 +430,12 @@
     buildModal();
     pendingCell = cell;
     modalOpen = true;
+    // Compose mode: show compose, hide rate-limit notice.
+    var composeEl = modalEl.querySelector(".signmodal-compose");
+    var ratedEl = modalEl.querySelector(".signmodal-rated");
+    if (composeEl) composeEl.hidden = false;
+    if (ratedEl) ratedEl.hidden = true;
+    modalEl.querySelector(".signmodal-title").textContent = "leave a sign";
     textareaEl.value = "";
     honeypotEl.value = "";
     counterEl.textContent = "0 / " + MAX_CHARS;
@@ -387,11 +448,78 @@
     setTimeout(function () { if (textareaEl) textareaEl.focus(); }, 30);
   }
 
+  function openRateLimitModal() {
+    buildModal();
+    modalOpen = true;
+    // Rate-limit mode: show notice, hide compose.
+    var composeEl = modalEl.querySelector(".signmodal-compose");
+    var ratedEl = modalEl.querySelector(".signmodal-rated");
+    if (composeEl) composeEl.hidden = true;
+    if (ratedEl) ratedEl.hidden = false;
+    modalEl.querySelector(".signmodal-title").textContent = "one per day";
+    var msgEl = modalEl.querySelector(".signmodal-rated-msg");
+    if (msgEl) msgEl.textContent = "you've already left a sign today — come back in " + fmtRemaining(rateRemainingMs()) + ".";
+    modalEl.hidden = false;
+  }
+
   function closeModal() {
     if (!modalEl) return;
     modalEl.hidden = true;
     modalOpen = false;
     pendingCell = null;
+  }
+
+  // ---- view modal (click a filled sign -> read full message + date) -----
+  // Separate overlay from the compose modal so both can coexist without
+  // fighting over shared textarea state.
+  var viewEl = null;
+
+  function buildViewModal() {
+    if (viewEl) return;
+    viewEl = document.createElement("div");
+    viewEl.className = "signview";
+    viewEl.hidden = true;
+    viewEl.setAttribute("role", "dialog");
+    viewEl.setAttribute("aria-modal", "true");
+    viewEl.setAttribute("aria-labelledby", "signview-title");
+
+    viewEl.innerHTML =
+      '<div class="signview-frame">' +
+        '<div class="signview-bar">' +
+          '<span class="signview-title" id="signview-title">sign</span>' +
+          '<button type="button" class="signview-close" data-close aria-label="Close">x</button>' +
+        '</div>' +
+        '<div class="signview-body">' +
+          '<div class="signview-text" id="signview-text"></div>' +
+          '<p class="signview-date" id="signview-date"></p>' +
+        '</div>' +
+      '</div>';
+
+    document.body.appendChild(viewEl);
+
+    // close buttons + backdrop click
+    viewEl.addEventListener("click", function (e) {
+      if (e.target.closest("[data-close]")) { closeViewModal(); return; }
+      if (!e.target.closest(".signview-frame")) closeViewModal(); // backdrop
+    });
+  }
+
+  function openViewModal(signData) {
+    buildViewModal();
+    viewModalOpen = true;
+    var textEl = viewEl.querySelector("#signview-text");
+    var dateEl = viewEl.querySelector("#signview-date");
+    textEl.textContent = signData.text;   // safe: textContent, never innerHTML
+    var d = fmtDate(signData.created_at);
+    dateEl.textContent = d;
+    dateEl.hidden = !d;
+    viewEl.hidden = false;
+  }
+
+  function closeViewModal() {
+    if (!viewEl) return;
+    viewEl.hidden = true;
+    viewModalOpen = false;
   }
 
   function modalError(msg) {
@@ -453,7 +581,7 @@
         grid_x: optimistic.gx,
         grid_y: optimistic.gy
       })
-      .select("id,text,grid_x,grid_y")
+      .select("id,text,grid_x,grid_y,created_at")
       .single()
       .then(function (res) {
         if (res && res.error) {
@@ -467,7 +595,8 @@
           id: row.id,
           text: row.text,
           gx: row.grid_x,
-          gy: row.grid_y
+          gy: row.grid_y,
+          created_at: row.created_at
         });
         updateEmptyState();
         // record the 24h rate-limit stamp NOW (only on confirmed success)
@@ -485,15 +614,21 @@
     if (msg) toast(msg);
   }
 
-  // ---- Esc handling: modal first, then let the panel close -------------
+  // ---- Esc handling: compose/view modals first, then let the panel close --
   // script.js listens for Esc (bubble phase) to close the open panel. If our
-  // modal is open, Esc should close ONLY the modal — capture phase fires
-  // before script.js's handler, and stopPropagation prevents the panel from
-  // also closing (which would leave the modal orphaned over the room).
+  // compose or view modal is open, Esc should close only that modal — capture
+  // phase fires before script.js's handler, and stopPropagation prevents the
+  // panel from also closing (which would leave the modal orphaned over the
+  // room).
   document.addEventListener("keydown", function (e) {
     if (e.key !== "Escape") return;
     if (modalOpen) {
       closeModal();
+      e.stopPropagation();
+      return;
+    }
+    if (viewModalOpen) {
+      closeViewModal();
       e.stopPropagation();
     }
   }, true); // capture phase
