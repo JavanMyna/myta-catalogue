@@ -220,7 +220,16 @@
       .then(function (res) {
         fetching = false;
         if (res && res.error) {
-          console.log("[signWall] fetch error:", res.error);
+          // Reached Supabase but the request itself failed (table missing,
+          // RLS violation, malformed query, etc.). Print the PostgREST
+          // error code + message so debugging is fast next time.
+          console.log(
+            "[signWall] fetch failed — reached the server but got error:",
+            "code:", res.error.code,
+            "| message:", res.error.message,
+            "| details:", JSON.stringify(res.error.details),
+            "| hint:", res.error.hint
+          );
           showState("error");
           return;
         }
@@ -243,7 +252,9 @@
       })
       .catch(function (err) {
         fetching = false;
-        console.log("[signWall] fetch threw:", err);
+        // The JS promise threw — could not reach Supabase at all
+        // (network blocked, DNS, CORS, ad-blocker, project paused, etc.).
+        console.log("[signWall] fetch failed — could not reach Supabase (network-level error):", err);
         showState("error");
       });
   }

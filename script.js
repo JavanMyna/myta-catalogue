@@ -55,13 +55,16 @@
   //   close       -> bookClose.mp3     (was clickMouse2.wav)
   //   switch on   -> clickSwitchOpen.mp3   (was the single clickSwitch.mp3)
   //   switch off  -> clickSwitchClose.mp3  (new key, paired with the toggle)
-  var sfxOpen        = new Audio("assets/sfx/clickMouse3.mp3");
-  var sfxClose       = new Audio("assets/sfx/bookClose.mp3");
-  var sfxSwitchOpen  = new Audio("assets/sfx/clickSwitchOpen.mp3");
-  var sfxSwitchClose = new Audio("assets/sfx/clickSwitchClose.mp3");
-  [sfxOpen, sfxClose, sfxSwitchOpen, sfxSwitchClose].forEach(function (a) {
-    a.preload = "auto"; a.volume = 0.35;
-  });
+var sfxOpen        = new Audio("assets/sfx/clickMouse3.mp3");
+var sfxClose       = new Audio("assets/sfx/bookClose.mp3");
+var sfxSwitchOpen  = new Audio("assets/sfx/clickSwitchOpen.mp3");
+var sfxSwitchClose = new Audio("assets/sfx/clickSwitchClose.mp3");
+// Image-zoom sounds: click image -> zoom in, close/backdrop -> zoom out.
+var sfxZoomIn  = new Audio("assets/sfx/clickMouse.wav");
+var sfxZoomOut = new Audio("assets/sfx/clickCamera.wav");
+[sfxOpen, sfxClose, sfxSwitchOpen, sfxSwitchClose, sfxZoomIn, sfxZoomOut].forEach(function (a) {
+  a.preload = "auto"; a.volume = 0.35;
+});
 
   // play() that never throws — browsers may block autoplay and reject the
   // returned Promise even after a user gesture; we want to fail silently.
@@ -514,6 +517,7 @@
     }
 
     lightbox.hidden = false;
+    playSfx(sfxZoomIn, 120);
     updateScrollLock();
   });
 
@@ -532,6 +536,7 @@
 
   function closeLightbox() {
     if (!lightbox) return;
+    playSfx(sfxZoomOut, 120);
     lightbox.hidden = true;
     lightboxImg.src = "";
     lightboxImg.alt = "";
