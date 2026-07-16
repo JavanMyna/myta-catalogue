@@ -928,6 +928,7 @@ var sfxZoomOut = new Audio("assets/sfx/clickCamera.wav");
   // authenticated /api/v0/stats/* endpoints + a Bearer token — see the TODO
   // in index.html; that must live in a serverless proxy, never client-side.
   var visitorCountEl = document.getElementById("visitor-count");
+  var visitorWarnEl  = document.getElementById("visitor-warn");
   var visitorCountLoaded = false;
 
   function loadVisitorCount() {
@@ -935,6 +936,7 @@ var sfxZoomOut = new Audio("assets/sfx/clickCamera.wav");
     visitorCountLoaded = true; // fetch at most once per page load
     visitorCountEl.textContent = "...";
     visitorCountEl.classList.remove("is-error");
+    if (visitorWarnEl) visitorWarnEl.hidden = true;
 
     var gcScript = document.querySelector("script[data-goatcounter]");
     var gcBase = "https://mynko.goatcounter.com";
@@ -952,13 +954,14 @@ var sfxZoomOut = new Audio("assets/sfx/clickCamera.wav");
       .then(function (d) {
         var n = d && d.count ? String(d.count) : "";
         visitorCountEl.textContent = n || "—";
-        if (!n) visitorCountEl.classList.add("is-error");
+        if (!n) { visitorCountEl.classList.add("is-error"); if (visitorWarnEl) visitorWarnEl.hidden = false; }
       })
       .catch(function (err) {
         // CORS off or setting disabled — fail to a quiet "—" rather than crashing.
-        console.log("GoatCounter count failed:", err);
-        visitorCountEl.textContent = "—";
+console.log("GoatCounter count failed:", err);
+        visitorCountEl.textContent = "\u2014";
         visitorCountEl.classList.add("is-error");
+        if (visitorWarnEl) visitorWarnEl.hidden = false;
       });
   }
 

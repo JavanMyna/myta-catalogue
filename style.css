@@ -987,6 +987,14 @@ audio {
   text-align: center;
 }
 
+/* Adblocker warning — only visible when the counter shows "\u2014".
+   Muted enough to be helpful, not an alarm. */
+.visitor-warn {
+  font-size: 11px;
+  color: #8a5a3a;
+  margin-top: 6px;
+}
+
 /* ----- Credits panel: museum plaque wall + spotlight (Brief 04 §3) -----
    This is the one hotspot Fred explicitly wants distinct UI/UX for, so it
    does NOT reuse .panel-list/.list-label from the Projects/Books panels.
