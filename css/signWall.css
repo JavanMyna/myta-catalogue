@@ -120,6 +120,13 @@
   white-space: pre-wrap;
   word-break: break-word;
   overflow-wrap: anywhere;
+  overflow: hidden;
+  /* Cap at ~2 lines (10px × 1.15 × 2 ≈ 23px). JS truncation to
+     24 chars is the first line of defense; this is the hard backstop
+     for edge cases like a 24-char string of no-spaces that still
+     wraps past 2 lines. The view modal reads from data-full-text,
+     so the full message is never lost. */
+  max-height: 2.6em;
 }
 
 /* Optimistic sign: dimmed, dashed border until the DB confirms the insert.

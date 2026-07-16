@@ -41,7 +41,7 @@
   var GRID_COLS = 12;
   var GRID_ROWS = 8;
   var MAX_CHARS = 60; // matches the DB CHECK constraint in signs_schema.sql
-  var PREVIEW_CHARS = 40; // char cap for grid-cell preview before "…"
+  var PREVIEW_CHARS = 24; // char cap for grid-cell preview before "…"
 
   // localStorage flag for the 24h, one-sign-per-browser rate limit.
   var RATE_KEY = "signWall_lastSubmit";
