@@ -28,9 +28,9 @@ Enter through a click-to-start splash screen (browsers block autoplay audio unti
 - **Live clock** — UTC+8, updates in real time
 - **Drawings, Photos, "My life" galleries** — lazy-loaded image grids with a lightbox for full-size viewing
 - **Corkboard & Shattered Glass** — zoomed-in views of physical art pieces with writeups
-- **Journal** — short, informal dated posts
+- **Journal** — short, informal dated posts; playing a YouTube embed stops the site music (manual restart from the player bar, no auto-resume)
 - **Visitor counter** — pulls total pageviews from GoatCounter's public endpoint, no auth required
-- **Shuffle music player** — fixed bottom bar for play/pause/skip once a track has been played
+- **Shuffle music player** — fixed bottom bar for play/pause/skip, always visible once you enter
 
 Some hotspots (music, certificates/timeline, clock, drawings, about, journal, books, photos, visitors) are wired up; two are intentionally left as no-op placeholders for future objects in the shelf photo.
 

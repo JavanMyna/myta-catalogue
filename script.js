@@ -124,6 +124,10 @@ var sfxZoomOut = new Audio("assets/sfx/clickCamera.wav");
   var activeAudio = new Set();         // audio elements currently making sound
   var roomToneStartTimer = null;
   var audioUnlocked = false;           // gate: don't try until after click-to-enter
+  // Shared audio state: a YouTube embed is currently playing, so the site
+  // must stay silent. Flipped by audioDirector (section 9b); gates
+  // startRoomTone() and startOst() so no queued audio can sneak back in.
+  var videoSuppressed = false;
 
   // Smooth volume ramp (requestAnimationFrame). targetVol is the goal,
   // onDone fires once the ramp completes. Used for room-tone fades.
@@ -169,10 +173,12 @@ var sfxZoomOut = new Audio("assets/sfx/clickCamera.wav");
 
   function startRoomTone() {
     if (!audioUnlocked || !roomTone) return;
+    if (videoSuppressed) return;       // a YouTube video is playing — stay silent
     if (roomToneStartTimer) return;    // already pending
     roomToneStartTimer = window.setTimeout(function () {
       roomToneStartTimer = null;
       if (activeAudio.size !== 0) return;  // something started during the debounce
+      if (videoSuppressed) return;     // re-check inside the debounce window
       var p = roomTone.play();              // resume from paused position
       if (p && typeof p.then === "function") p.catch(function () {});
       fadeVolume(roomTone, ROOM_TONE_VOL, 220);
@@ -289,6 +295,10 @@ var sfxZoomOut = new Audio("assets/sfx/clickCamera.wav");
     entryStarted = true;
     audioUnlocked = true;   // room-tone bed may now start when the site is idle
 
+    // The music bar is always visible from the moment the visitor enters —
+    // it no longer waits for the OST to end and never hides again.
+    showShufflePlayer();
+
     // Now that we have a user gesture, kick off the room-tone bed fetch. It
     // was left at preload="none" at page parse so its 595KB wouldn't compete
     // with mainPic.jpg / the VCR SFX on first paint. The bed can't actually
@@ -377,6 +387,10 @@ var sfxZoomOut = new Audio("assets/sfx/clickCamera.wav");
   // Start the background OST once, not looped.
   function startOst() {
     if (!ost) return;
+    // Don't start over a YouTube video, or over music the visitor already
+    // started from the always-visible bar during the VCR intro. The OST is
+    // a one-time thing — once pre-empted, it stays off.
+    if (videoSuppressed || activeAudio.size > 0) return;
     try { ost.currentTime = 0; } catch (e) {}
     ost.loop = false;
     playSafely(ost);
@@ -782,6 +796,10 @@ var sfxZoomOut = new Audio("assets/sfx/clickCamera.wav");
         if (shufflePlayBtn) shufflePlayBtn.textContent = "play";
       }
 
+      // A manually-started track is a restart: clear the bar's
+      // "stopped by video" state.
+      clearPlayerStoppedUI();
+
       // b) Is the OST making sound right now?
       var ostIsAudible = ost && !ost.paused && ost.volume > 0;
 
@@ -793,6 +811,7 @@ var sfxZoomOut = new Audio("assets/sfx/clickCamera.wav");
       track.pause();
       fadeOutAndPause(ost, 3000);
       window.setTimeout(function () {
+        if (videoSuppressed) return; // a YouTube video started during the fade — stay silent
         track._delayedReplay = true;
         var p = track.play();
         if (p && typeof p.then === "function") {
@@ -814,35 +833,11 @@ var sfxZoomOut = new Audio("assets/sfx/clickCamera.wav");
       }, true);
     });
   }
-  // ---- 8) Journal video embeds: pause site audio when a YT video plays ----
-  // Loads the YouTube IFrame API once, then wires every iframe.yt-embed to
-  // pause everything in activeAudio (OST, shuffle player, music-panel track)
-  // the instant that video starts playing.
-  var ytEmbeds = document.querySelectorAll("iframe.yt-embed");
-  if (ytEmbeds.length) {
-    var ytTag = document.createElement("script");
-    ytTag.src = "https://www.youtube.com/iframe_api";
-    document.head.appendChild(ytTag);
-
-    window.onYouTubeIframeAPIReady = function () {
-      ytEmbeds.forEach(function (frame) {
-        new YT.Player(frame.id, {
-          events: {
-            onStateChange: function (e) {
-              if (e.data === YT.PlayerState.PLAYING) {
-                Array.from(activeAudio).forEach(function (a) { a.pause(); });
-              }
-            }
-          }
-        });
-      });
-    };
-  }
-
   // ---- 9) Shuffle music player -----------------------------------------
-  // A small fixed bar at the bottom of the screen. Appears after the OST
-  // fades out (when a music track is first played). Plays songs in random
-  // order. Non-invasive: sits at the bottom, doesn't block the room.
+  // A small fixed bar at the bottom of the screen. Revealed the moment the
+  // visitor enters the site (enterSite) and always visible afterwards —
+  // regardless of playback state. Plays songs in random order. Also serves
+  // as the manual restart point after a YouTube embed stops site music.
   var shufflePlayer = document.getElementById("shuffle-player");
   var shuffleAudio = document.getElementById("shuffle-audio");
   // Register the shuffle player with the room-tone tracker (Brief 02 §5).
@@ -850,7 +845,6 @@ var sfxZoomOut = new Audio("assets/sfx/clickCamera.wav");
   var shufflePlayBtn = document.getElementById("shuffle-play");
   var shufflePrevBtn = document.getElementById("shuffle-prev");
   var shuffleNextBtn = document.getElementById("shuffle-next");
-  var shuffleCloseBtn = document.getElementById("shuffle-close");
   var shuffleLabel = document.getElementById("shuffle-label");
   var shuffleOrder = [];          // array of song indices, shuffled
   var shufflePos = 0;             // current position in shuffleOrder
@@ -859,7 +853,7 @@ var sfxZoomOut = new Audio("assets/sfx/clickCamera.wav");
   function showShufflePlayer() {
     if (shuffleShowing || !shufflePlayer) return;
     shuffleShowing = true;
-    // Build the shuffle order once, the first time the OST fades.
+    // Build the shuffle order once, on entry.
     shuffleOrder = [];
     var songs = window.SONGS || [];
     for (var i = 0; i < songs.length; i++) shuffleOrder.push(i);
@@ -887,6 +881,13 @@ var sfxZoomOut = new Audio("assets/sfx/clickCamera.wav");
 
   function shufflePlay() {
     if (!shuffleAudio.src) shuffleLoad();
+    // Pressing play on the bar is a manual (re)start: clear any
+    // "stopped by video" state first.
+    clearPlayerStoppedUI();
+    // The bar is always visible now, so it can be started while the
+    // one-time OST is still audible — hand over with a short fade instead
+    // of letting them overlap. The OST never comes back on its own.
+    if (ost && !ost.paused && ost.volume > 0) fadeOutAndPause(ost, 1200);
     // Pause any track currently playing in the music panel so they
     // don't overlap (Bug 2 fix: one audio at a time, across both systems).
     if (musicPanel) {
@@ -926,16 +927,132 @@ var sfxZoomOut = new Audio("assets/sfx/clickCamera.wav");
   if (shufflePlayBtn) shufflePlayBtn.addEventListener("click", shuffleToggle);
   if (shuffleNextBtn) shuffleNextBtn.addEventListener("click", shuffleNext);
   if (shufflePrevBtn) shufflePrevBtn.addEventListener("click", shufflePrev);
-  if (shuffleCloseBtn) shuffleCloseBtn.addEventListener("click", function () {
-    shufflePause();
-    shuffleAudio.src = "";
-    if (shufflePlayer) shufflePlayer.hidden = true;
-    shuffleShowing = false;
-  });
+  // No close button: the bar is persistent by design (always visible).
 
   // When the current shuffle track ends, move to the next one automatically.
   if (shuffleAudio) {
     shuffleAudio.addEventListener("ended", shuffleNext);
+  }
+
+  // ---- 9b) Shared audio state manager: YouTube embeds vs. site music -----
+  // One small object owns the "a YouTube embed is playing" state, so the YT
+  // wiring and the audio elements never reach into each other. Everything
+  // lives in this IIFE closure — no globals beyond the one callback the
+  // IFrame API itself requires (see 9c).
+  //
+  //   stopAllForVideo()  (YT PLAYING)  — cut the room-tone bed, HARD-STOP the
+  //      one-time OST (pause AND rewind to 0 — stop, not pause), pause the
+  //      shuffle bar (keeps its position) and any music-panel track, then
+  //      flip the bar to its "stopped" visual state.
+  //   releaseVideo()     (YT PAUSED/ENDED) — lift the suppression so the idle
+  //      room-tone bed may return, but DO NOT resume any music. The visitor
+  //      restarts it manually from the bar.
+  //
+  // The shared videoSuppressed flag (declared with the room-tone vars) also
+  // gates startRoomTone() and startOst(), so nothing queued (the VCR-intro
+  // OST start, the 3s OST-fade delayed replay, the room-tone debounce) can
+  // fire audio while a video is up.
+  var audioDirector = {
+    stopAllForVideo: function () {
+      videoSuppressed = true;            // FIRST — blocks the room-tone restart
+      stopRoomTone();                    // cut the ambient bed instantly
+      if (ost) {
+        if (!ost.paused) ost.pause();
+        try { ost.currentTime = 0; } catch (e) {}  // STOP, not pause
+      }
+      if (shuffleAudio && !shuffleAudio.paused) shuffleAudio.pause();
+      if (musicPanel) {
+        var tracks = musicPanel.querySelectorAll("audio");
+        for (var i = 0; i < tracks.length; i++) {
+          if (!tracks[i].paused) tracks[i].pause();
+        }
+      }
+      setPlayerStoppedUI(true);
+    },
+    releaseVideo: function () {
+      if (!videoSuppressed) return;
+      videoSuppressed = false;
+      // If the visitor already restarted music manually mid-video, leave
+      // the bar and the bed alone.
+      if (activeAudio.size === 0) {
+        setPlayerStoppedUI(false);       // stays "stopped"; hint -> press play
+        startRoomTone();                 // only the idle bed may come back
+      }
+    }
+  };
+
+  // The bar's "stopped" visual state (CSS .is-stopped: dashed dim border +
+  // a blinking square before the label). videoPlaying=true while the embed
+  // is actively playing; false once it pauses/ends — the music stays
+  // stopped either way until the visitor presses play (no auto-resume).
+  function setPlayerStoppedUI(videoPlaying) {
+    if (!shufflePlayer) return;
+    shufflePlayer.classList.add("is-stopped");
+    if (shufflePlayBtn) shufflePlayBtn.textContent = "play";
+    if (shuffleLabel) {
+      shuffleLabel.textContent = videoPlaying
+        ? "stopped — video playing"
+        : "stopped — press play to restart";
+    }
+  }
+  function clearPlayerStoppedUI() {
+    if (!shufflePlayer || !shufflePlayer.classList.contains("is-stopped")) return;
+    shufflePlayer.classList.remove("is-stopped");
+    // Restore an honest label now that the "stopped" message is gone.
+    if (shuffleLabel) {
+      var cur = shuffleCurrentSong();
+      shuffleLabel.textContent = (shuffleAudio.src && cur) ? ("shuffle: " + cur.title) : "shuffle";
+    }
+  }
+
+  // ---- 9c) Journal video embeds: stop site music while a YT video plays --
+  // Uses the YouTube IFrame API (YT.Player) to watch play state. Two
+  // hardening steps vs. the previous version:
+  //   1) The embed src must carry an `origin` param matching this page's
+  //      origin, or some browsers silently never deliver API events. We
+  //      append it once here (http/https only) rather than hardcoding one
+  //      domain in index.html — the site is served from several.
+  //   2) window.onYouTubeIframeAPIReady is the single global the IFrame API
+  //      itself requires; everything it calls lives in the closure.
+  // ytPlaying tracks each player individually so TWO playing videos don't
+  // release the suppression when only one of them pauses/ends.
+  var ytEmbeds = document.querySelectorAll("iframe.yt-embed");
+  if (ytEmbeds.length) {
+    var ytPlaying = new Set();           // YT.Player instances currently playing
+
+    if (location.protocol === "http:" || location.protocol === "https:") {
+      ytEmbeds.forEach(function (frame) {
+        if (frame.src.indexOf("origin=") === -1) {
+          frame.src += (frame.src.indexOf("?") === -1 ? "?" : "&") +
+            "origin=" + encodeURIComponent(location.origin);
+        }
+      });
+    }
+
+    var ytTag = document.createElement("script");
+    ytTag.src = "https://www.youtube.com/iframe_api";
+    document.head.appendChild(ytTag);
+
+    window.onYouTubeIframeAPIReady = function () {
+      ytEmbeds.forEach(function (frame) {
+        new YT.Player(frame.id, {
+          events: {
+            onStateChange: function (e) {
+              if (e.data === YT.PlayerState.PLAYING) {
+                ytPlaying.add(e.target);
+                audioDirector.stopAllForVideo();
+              } else if (e.data === YT.PlayerState.PAUSED ||
+                         e.data === YT.PlayerState.ENDED) {
+                ytPlaying.delete(e.target);
+                if (ytPlaying.size === 0) audioDirector.releaseVideo();
+              }
+              // BUFFERING / CUED deliberately keep the suppression — a seek
+              // shouldn't drop the stopped state or restart anything.
+            }
+          }
+        });
+      });
+    };
   }
 
   // ---- 10) GoatCounter visitor count (Feature 2) ------------------------

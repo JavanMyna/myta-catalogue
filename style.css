@@ -847,7 +847,8 @@ audio {
 
 /* ----- Shuffle music player (fixed bar at bottom) ----- */
 /* Non-invasive: a thin bar at the bottom of the screen. Doesn't block the
-   room. Appears only after the OST fades out. */
+   room. Always visible once the visitor has entered (JS removes [hidden]
+   on the splash click); there is deliberately no close button. */
 #shuffle-player {
   position: fixed;
   bottom: 0;
@@ -884,7 +885,20 @@ audio {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.shuffle-close { margin-left: auto; }
+
+/* "Stopped" state (JS toggles .is-stopped): a YouTube embed killed the
+   site music. The bar stays visible — it is the manual restart point —
+   but drops to a dashed dim border, and the label gains a blinking square
+   as a clear "deck stopped" indicator. Reuses the splash's blink anim. */
+#shuffle-player.is-stopped {
+  border-top-style: dashed;
+  border-top-color: var(--red-dim);
+}
+#shuffle-player.is-stopped .shuffle-label { color: var(--red); }
+#shuffle-player.is-stopped .shuffle-label::before {
+  content: "\25A0  ";            /* two spaces: the first terminates the escape */
+  animation: blink 1s steps(2) infinite;
+}
 
 /* ----- Devlog panel (colored pens hotspot) -----
    Reusable "devlog entry" pattern: caption + image set. Each entry is an
