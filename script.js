@@ -814,8 +814,32 @@ var sfxZoomOut = new Audio("assets/sfx/clickCamera.wav");
       }, true);
     });
   }
+  // ---- 8) Journal video embeds: pause site audio when a YT video plays ----
+  // Loads the YouTube IFrame API once, then wires every iframe.yt-embed to
+  // pause everything in activeAudio (OST, shuffle player, music-panel track)
+  // the instant that video starts playing.
+  var ytEmbeds = document.querySelectorAll("iframe.yt-embed");
+  if (ytEmbeds.length) {
+    var ytTag = document.createElement("script");
+    ytTag.src = "https://www.youtube.com/iframe_api";
+    document.head.appendChild(ytTag);
 
-  // ---- 8) Shuffle music player -----------------------------------------
+    window.onYouTubeIframeAPIReady = function () {
+      ytEmbeds.forEach(function (frame) {
+        new YT.Player(frame.id, {
+          events: {
+            onStateChange: function (e) {
+              if (e.data === YT.PlayerState.PLAYING) {
+                Array.from(activeAudio).forEach(function (a) { a.pause(); });
+              }
+            }
+          }
+        });
+      });
+    };
+  }
+
+  // ---- 9) Shuffle music player -----------------------------------------
   // A small fixed bar at the bottom of the screen. Appears after the OST
   // fades out (when a music track is first played). Plays songs in random
   // order. Non-invasive: sits at the bottom, doesn't block the room.
@@ -914,7 +938,7 @@ var sfxZoomOut = new Audio("assets/sfx/clickCamera.wav");
     shuffleAudio.addEventListener("ended", shuffleNext);
   }
 
-  // ---- 9) GoatCounter visitor count (Feature 2) ------------------------
+  // ---- 10) GoatCounter visitor count (Feature 2) ------------------------
   // GoatCounter exposes a public, auth-free JSON endpoint for exactly this:
   //   https://<code>.goatcounter.com/counter/TOTAL.json  ->  { "count": "1,234" }
   // The special path TOTAL (case-sensitive, no leading slash) gives the
@@ -965,7 +989,7 @@ console.log("GoatCounter count failed:", err);
       });
   }
 
-  // ---- 10) Functional clock (UTC+8) -------------------------------------
+  // ---- 11) Functional clock (UTC+8) -------------------------------------
   // toLocaleTimeString with timeZone: "Asia/Kuala_Lumpur" gives UTC+8 time.
   // We update once per second with setInterval. The clock only runs while
   // the clock panel is open (to avoid wasting CPU when hidden).
