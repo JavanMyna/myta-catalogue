@@ -548,6 +548,27 @@ var sfxZoomOut = new Audio("assets/sfx/clickCamera.wav");
     moreBtn.setAttribute("aria-expanded", open ? "true" : "false");
   });
 
+  // Discord tag copy: click the Discord button -> copy tag to clipboard,
+  // show "Copied!" for 1.8s, then revert. No popup — the button itself
+  // is the feedback. Event delegation on #panels catches the [data-copy]
+  // button in the About panel.
+  panelsWrap.addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-copy]");
+    if (!btn) return;
+    var tag = btn.getAttribute("data-copy");
+    var span = btn.querySelector("span");
+    var svg = btn.querySelector("svg");
+    var originalText = span ? span.textContent : "";
+    navigator.clipboard.writeText(tag).then(function () {
+      if (span) span.textContent = "Copied!";
+      btn.setAttribute("data-copied", "true");
+      window.setTimeout(function () {
+        if (span) span.textContent = originalText;
+        btn.removeAttribute("data-copied");
+      }, 1800);
+    }).catch(function () {});
+  });
+
   function closeLightbox() {
     if (!lightbox) return;
     playSfx(sfxZoomOut, 120);

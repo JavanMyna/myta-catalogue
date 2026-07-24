@@ -745,6 +745,47 @@ audio {
 .about-text p { margin-bottom: 10px; }
 .about-text p:last-child { margin-bottom: 0; }
 
+/* ----- Socials row (contact links in About panel) ----- */
+/* Icon buttons for Discord, Email, GitHub, SoundCloud.
+   Matches the .project-link visual pattern (small pixel-font border
+   buttons) with inline SVG icons for mobile-first tap targets. */
+.socials-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px dashed var(--red-dim);
+}
+.social-btn {
+  font-family: var(--font-head);
+  font-size: 9px;
+  color: var(--red-bright);
+  text-decoration: none;
+  border: 1px solid var(--red-dim);
+  padding: 6px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  cursor: pointer;
+  line-height: 1;
+}
+.social-btn:hover {
+  background: var(--red);
+  color: #fff;
+  border-color: var(--red);
+}
+.social-btn svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+/* Copied state: swap icon out and show "Copied!" text */
+.social-btn[data-copied] svg {
+  display: none;
+}
+
 /* ----- Project links ----- */
 .project-item { margin-bottom: 20px; }
 .project-desc {
