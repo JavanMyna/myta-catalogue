@@ -31,6 +31,7 @@ Enter through a click-to-start splash screen (browsers block autoplay audio unti
 - **Journal** — short, informal dated posts; playing a YouTube embed stops the site music (manual restart from the player bar, no auto-resume)
 - **Visitor counter** — pulls total pageviews from GoatCounter's public endpoint, no auth required
 - **Shuffle music player** — fixed bottom bar for play/pause/skip, always visible once you enter
+- **Sign Wall (guestbook)** — visitors can leave a short note on a grid; backed by Supabase, RLS-enforced, no login required
 
 Some hotspots (music, certificates/timeline, clock, drawings, about, journal, books, photos, visitors) are wired up; two are intentionally left as no-op placeholders for future objects in the shelf photo.
 
@@ -40,6 +41,7 @@ Vanilla HTML, CSS, and JavaScript — no frameworks, no build step.
 
 - **Fonts:** [Press Start 2P](https://fonts.google.com/specimen/Press+Start+2P) (headers/labels) + [Pixelify Sans](https://fonts.google.com/specimen/Pixelify+Sans) (body text) via Google Fonts
 - **Analytics:** [GoatCounter](https://www.goatcounter.com/) (privacy-friendly, public pageview count only)
+- **Guestbook backend:** [Supabase](https://supabase.com/) (Postgres, Row Level Security) for the Sign Wall — anonymous inserts, no auth required
 
 ## Project structure
 
@@ -49,6 +51,16 @@ myta-catalogue/
 ├── style.css            # theme, layout, room/panel styling
 ├── script.js            # hotspot wiring, panels, clock, timeline, lightbox, shuffle player
 ├── songs.js              # music track data (single source of truth for the Music panel)
+├── css/
+│   └── signWall.css        # Sign Wall (guestbook) styling
+├── js/
+│   ├── supabaseClient.js    # Supabase client init for the Sign Wall
+│   └── signWall.js           # Sign Wall guestbook logic
+├── sql/
+│   └── signs_schema.sql       # guestbook schema + RLS policies — run once in the Supabase SQL editor, never executed by the site itself
+├── tools/
+│   ├── audit_exif.py           # read-only EXIF/GPS scan for committed images
+│   └── optimize_images.py       # strips metadata, resizes, converts new photos to WebP before they're committed
 ├── favicon/               # favicon set
 └── assets/
     ├── misc/               # room photo, corkboard, devlog + project images

@@ -1,1 +1,13 @@
-﻿_orig_backup/
+﻿# OS-generated files
+desktop.ini
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Icon?
+
+# Editor/IDE
+.vscode/
+*.swp
+
+# Original/unprocessed images before optimize_images.py runs
+_orig_backup/
