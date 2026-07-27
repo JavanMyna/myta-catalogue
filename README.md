@@ -5,7 +5,7 @@ An interactive, diorama-style personal portfolio. Instead of a scrolling homepag
 > Successor to [Myna Catalogue](https://javanmyna.github.io/myna-catalogue/), rebuilt around a "clickable room" concept instead of a traditional layout.
 
 ## Live
-https://javanmyna.github.io/myta-catalogue/
+https://javanmyna.fyi
 
 ## Screenshots
 
