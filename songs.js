@@ -42,7 +42,7 @@ window.SONGS = [
         title: "Lifeline",
         category: "Personal Favourites",
         type: "Composition",
-        soundcloudUrl: "https://soundcloud.com/javanmyna/lifeline?in=javanmyna/sets/pint-of-breakcore&si=0402c4f5362947f3bc5dcebda09d4c57&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing",
+        soundcloudUrl: "https://on.soundcloud.com/Ov465cSJ0jKCZtqEZ5",
         story: "31/08/2024 : I was watching Terror in Resonance anime one day and one of their ost (nc17) made me feel something... ",
         previewSrc: null,
         fullSrc: "assets/music/lifeline.mp3"
@@ -62,7 +62,7 @@ window.SONGS = [
         title: "Fy, IbnG",
         category: "Personal Favourites",
         type: "Composition",
-        soundcloudUrl: "https://soundcloud.com/javanmyna/untitled?si=af185bdc7da449e090a1c01083a19ec1&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing",
+        soundcloudUrl: "https://on.soundcloud.com/DH24LlQAj6VbxkaiuE",
         story: "14/05/2025 : I rather not say",
         previewSrc: null,
         fullSrc: "assets/music/Fy,IbnG.mp3"
@@ -72,7 +72,7 @@ window.SONGS = [
         title: "Lian & Mei",
         category: "Personal Favourites",
         type: "Composition",
-        soundcloudUrl: "https://soundcloud.com/javanmyna/lian-and-mei?in=javanmyna/sets/2025a1&si=1ccccc62a1564ce68e54ec439cbecb57&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing",
+        soundcloudUrl: "https://on.soundcloud.com/UL8A9PxEaRyxqavnMh",
         story: "18/02/2025 : It was just weeks after my last spm paper ended. I wanted a way to celebrate it. For some reason, months later after watching Lookback anime, it reminded me of this.",
         previewSrc: null,
         fullSrc: "assets/music/l&m.mp3"
@@ -82,7 +82,7 @@ window.SONGS = [
         title: "Dazed",
         category: "Mis1nf0 OST",
         type: "Soundtrack",
-        soundcloudUrl: "https://soundcloud.com/javanmyna/dazed?si=fc159ce39f944309acf59c3c3ef1adb5&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing",
+        soundcloudUrl: "https://on.soundcloud.com/mhOTqYwlBcVo75nQiO",
         story: "09/01/2024 : Initially there's actually drums in the music but my friend said it sounded so happy. So when I went to remove it, now it sounds like the type of stuff you hear when you're otw home.",
         previewSrc: null,
         fullSrc: "assets/music/dazed.mp3"
@@ -92,7 +92,7 @@ window.SONGS = [
         title: "dfordustbin",
         category: "Mis1nf0 OST",
         type: "Soundtrack",
-        soundcloudUrl: "https://soundcloud.com/javanmyna/dfordumpster?si=4c3fbe18e38d4a85b54b189973d42acb&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing",
+        soundcloudUrl: "https://on.soundcloud.com/QxleZB1Lj5fqdcgb1b",
         story: "11/01/2024 : Literally the first week I was playing around with the Beepbox. I got into this because my friend needed someone to make music for their game and since I was like passionate about music, they brought me in even tho I had no experiences making my own music. Maybe thats why how I ended up making music that sounds like they belong in a game.",
         previewSrc: null,
         fullSrc: "assets/music/dfordustbin.mp3"
@@ -132,7 +132,7 @@ window.SONGS = [
         title: "Anhedonia",
         category: "Mood",
         type: "Composition",
-        soundcloudUrl: null,
+        soundcloudUrl: "https://on.soundcloud.com/bOMKvv2fRXplRe5Kgv",
         story: `29/04/2024
 
 **Anhedonia**
@@ -147,7 +147,7 @@ The absence, diminution, or quieting of pleasure; a state in which things once c
         title: "Memento Mori",
         category: "Mood",
         type: "Composition",
-        soundcloudUrl: null,
+        soundcloudUrl: "https://on.soundcloud.com/jApzSli2nHfNRM91OK",
         story: `13/02/2025 : Time is so short that you barely notice it...
 
 You start something, you learn, everything feels slow and hard. Then you get the hang of it, suddenly time moves faster. You get better. Eventually, you might grow bored and stop...even though you once loved it.
@@ -165,7 +165,7 @@ Memento mori. You'll eventually die one day, let that remind you to be intention
         title: "Mingkomi",
         category: "Mood",
         type: "Composition",
-        soundcloudUrl: null,
+        soundcloudUrl: "https://on.soundcloud.com/O4zbXbVANOeSyymm5X",
         story: "26/12/2024 : A piece I made to tribute my spm lisan teammates",
         previewSrc: null,
         fullSrc: "assets/music/mingkomi.mp3"
