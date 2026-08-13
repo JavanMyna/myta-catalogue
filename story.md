@@ -7,7 +7,7 @@ You start something, you learn, everything feels slow and hard. Then you get the
 
 Time won't stop for you. It moves the same for everyone around you.
 
-Memento mori. You'll eventually die one die, let that remind you to be intentional of what you do, think and say. Pick a good hobby for once.
+Memento mori. You'll eventually die one day, let that remind you to be intentional of what you do, think and say. Pick a good hobby for once.
 
 -- Inspired by Mila's OST from MiSide game
 ```
