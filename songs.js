@@ -32,12 +32,6 @@
 /*   fullSrc      the original mp3 used for "Play full   */
 /*                track" (and the default audio src      */
 /*                whenever previewSrc is null).         */
-/*                                                     */
-/* FRED — TODO: the soundcloudUrl values below are      */
-/* placeholders pointing at the JavanMyna profile. They  */
-/* make the title-link visibly work until you paste each  */
-/* track's real SoundCloud URL. Replace them with the    */
-/* specific track URLs as you find them. Keep Lyna null.  */
 /* =================================================== */
 
 window.SONGS = [
@@ -130,5 +124,35 @@ window.SONGS = [
         story: "22/06/2025 : I made this for the friend that introduced me to music composing",
         previewSrc: null,
         fullSrc: "assets/music/manyafication.mp3"
+    },
+    {
+        id: "anhedonia",
+        title: "Anhedonia",
+        category: "Mood",
+        type: "Composition",
+        soundcloudUrl: null,
+        story: "",
+        previewSrc: null,
+        fullSrc: "assets/music/anhedonia.mp3"
+    },
+    {
+        id: "memento_mori",
+        title: "Memento Mori",
+        category: "Mood",
+        type: "Composition",
+        soundcloudUrl: null,
+        story: "",
+        previewSrc: null,
+        fullSrc: "assets/music/mementomori.mp3"
+    },
+    {
+        id: "mingkomi",
+        title: "Mingkomi",
+        category: "Mood",
+        type: "Composition",
+        soundcloudUrl: null,
+        story: "26/12/2024 : A piece I made to tribute my spm lisan teammates",
+        previewSrc: null,
+        fullSrc: "assets/music/mingkomi.mp3"
     }
 ];
