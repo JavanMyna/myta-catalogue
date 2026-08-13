@@ -608,6 +608,29 @@ var sfxZoomOut = new Audio("assets/sfx/clickCamera.wav");
     requestAnimationFrame(step);
   }
 
+  // Convert a song's story into safe HTML. Stories are author-written
+  // (songs.js), not visitor input, but we still escape HTML first, then
+  // apply a tiny markdown subset: blank lines -> paragraph breaks,
+  // **bold**, *italic*. Single newlines inside a paragraph become <br>.
+  function storyToHtml(text) {
+    var esc = String(text)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+
+    return esc
+      .split(/\n\s*\n/)
+      .map(function (p) { return p.trim(); })
+      .filter(function (p) { return p.length > 0; })
+      .map(function (p) {
+        return p
+          .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+          .replace(/\*([^*]+)\*/g, "<em>$1</em>")
+          .replace(/\n/g, "<br>");
+      })
+      .join("<br><br>");
+  }
+
   // ---- 6) Render song cards from songs.js ------------------------------
   // window.SONGS is loaded by songs.js (included before script.js).
   // Each song becomes a "card" with:
@@ -615,8 +638,9 @@ var sfxZoomOut = new Audio("assets/sfx/clickCamera.wav");
   //   - an audio player
   //   - a hidden details section with the story + a SoundCloud link
   //
-  // "textContent" is used instead of innerHTML for any user-provided text
-  // (story, title) to prevent HTML injection. It's a security habit.
+  // "textContent" is used for title/meta (safe, no HTML). The story is
+  // author-written, so storyToHtml escapes HTML then renders paragraphs,
+  // **bold**, and *italic* — never raw visitor input.
   function renderSongs() {
     if (!musicTracks) return;
     var songs = window.SONGS || [];
@@ -655,8 +679,8 @@ var sfxZoomOut = new Audio("assets/sfx/clickCamera.wav");
 
     musicTracks.innerHTML = html;
 
-    // Now fill in the text via textContent (safe — no HTML injection).
-    // We do this after innerHTML so we don't have to escape the strings.
+    // Now fill in text. Title/meta via textContent (safe). Story via
+    // storyToHtml (escapes HTML, then renders paragraphs/bold/italic).
     var cards = musicTracks.querySelectorAll(".song-card");
     for (var j = 0; j < cards.length; j++) {
       var song = songs[j];
@@ -666,7 +690,7 @@ var sfxZoomOut = new Audio("assets/sfx/clickCamera.wav");
 
       var storyEl = cards[j].querySelector(".song-story");
       if (song.story) {
-        storyEl.textContent = song.story;
+        storyEl.innerHTML = storyToHtml(song.story);
       } else {
         storyEl.textContent = "Story coming soon.";
         storyEl.style.color = "var(--red-dim)";

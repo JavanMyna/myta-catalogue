@@ -17,8 +17,10 @@
 /*                  SoundCloud source (Lyna is the     */
 /*                  original special case).            */
 /*   story        optional free-text story behind the    */
-/*                song. Leave "" to show the "Story    */
-/*                coming soon" placeholder in the card.  */
+/*                song. Blank lines become paragraphs    */
+/*                (**bold** / *italic* supported). Leave */
+/*                "" to show the "Story coming soon"     */
+/*                placeholder in the card.               */
 /*   previewSrc   short ~20–30s preview clip path.      */
 /*                null means previewing isn't set up     */
 /*                yet — the player then falls back to    */
@@ -32,12 +34,6 @@
 /*   fullSrc      the original mp3 used for "Play full   */
 /*                track" (and the default audio src      */
 /*                whenever previewSrc is null).         */
-/*                                                     */
-/* FRED — TODO: the soundcloudUrl values below are      */
-/* placeholders pointing at the JavanMyna profile. They  */
-/* make the title-link visibly work until you paste each  */
-/* track's real SoundCloud URL. Replace them with the    */
-/* specific track URLs as you find them. Keep Lyna null.  */
 /* =================================================== */
 
 window.SONGS = [
@@ -130,5 +126,48 @@ window.SONGS = [
         story: "22/06/2025 : I made this for the friend that introduced me to music composing",
         previewSrc: null,
         fullSrc: "assets/music/manyafication.mp3"
+    },
+    {
+        id: "anhedonia",
+        title: "Anhedonia",
+        category: "Mood",
+        type: "Composition",
+        soundcloudUrl: null,
+        story: `29/04/2024
+
+**Anhedonia**
+*noun*
+
+The absence, diminution, or quieting of pleasure; a state in which things once capable of stirring delight become strangely muted, distant, or indifferent. Not necessarily sadness, but the erosion of the feeling that makes beauty feel beautiful.`,
+        previewSrc: null,
+        fullSrc: "assets/music/anhedonia.mp3"
+    },
+    {
+        id: "memento_mori",
+        title: "Memento Mori",
+        category: "Mood",
+        type: "Composition",
+        soundcloudUrl: null,
+        story: `13/02/2025 : Time is so short that you barely notice it...
+
+You start something, you learn, everything feels slow and hard. Then you get the hang of it, suddenly time moves faster. You get better. Eventually, you might grow bored and stop...even though you once loved it.
+
+Time won't stop for you. It moves the same for everyone around you.
+
+Memento mori. You'll eventually die one day, let that remind you to be intentional of what you do, think and say. Pick a good hobby for once.
+
+-- Inspired by Mila's OST from MiSide game`,
+        previewSrc: null,
+        fullSrc: "assets/music/mementomori.mp3"
+    },
+    {
+        id: "mingkomi",
+        title: "Mingkomi",
+        category: "Mood",
+        type: "Composition",
+        soundcloudUrl: null,
+        story: "26/12/2024 : A piece I made to tribute my spm lisan teammates",
+        previewSrc: null,
+        fullSrc: "assets/music/mingkomi.mp3"
     }
 ];
