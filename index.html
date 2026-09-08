@@ -181,11 +181,11 @@
         <span class="hotspot-dot"></span>
       </button>
 
-      <!-- Books I've read -> books panel -->
+      <!-- My hobbies -->
       <button type="button" class="hotspot"
-              data-panel="panel-books"
+              data-panel="panel-hobbies"
               style="left: 20.8%; top: 84.9%; width: 17%; height: 10%;"
-              aria-label="Open Books I've read" title="Books I've read">
+              aria-label="Open my Hobbies" title="Something that pique my interest">
         <span class="hotspot-dot"></span>
       </button>
 
@@ -291,8 +291,8 @@
                  .project-item when the [ + ] button is clicked. -->
             <button type="button" class="project-more" aria-expanded="false">more</button>
             <div class="project-full">
-              <p>A Google Sheets tracker built from scratch with a study partner during my final semester of Matriculation. Not a school assignment — just two people who wanted an actual system for revising, instead of a textbook vaguely marked &lsquo;done.&rsquo;</p>
-              <p>Every practice question either of us attempted got logged: source paper, subject, marks, time spent. The sheet did the boring-but-useful part automatically — accumulated marks, mean, and standard deviation per question — so a bad score would show up as either &lsquo;just an off day&rsquo; or &lsquo;an actual weak spot,&rsquo; instead of both looking identical.</p>
+              <p>A Google Sheets tracker built from scratch with a study partner during my final semester of Matriculation. Just two people who wanted an actual system for revising, instead of a textbook vaguely marked &lsquo;done.&rsquo;</p>
+              <p>Every practice question either of us attempted got logged: source paper, subject, marks, time spent. The sheet did the boring-but-useful part automatically — accumulated marks, mean, and standard deviation per question so a bad score would show up as either &lsquo;just an off day&rsquo; or &lsquo;an actual weak spot,&rsquo; instead of both looking identical.</p>
               <p>There&rsquo;s also a shared log — dates, subjects, and study session blocks running from March through May, right through exam season. Not glamorous, mostly timestamps and question numbers, but it&rsquo;s the clearest proof I have that this wasn&rsquo;t theoretical. We used it, every week, until the semester ended.</p>
               <p class="p4f-highlight">Semester 2 CGPA: 4.00</p>
             </div>
@@ -533,34 +533,121 @@
       </div>
     </section>
 
-    <!-- I wanna put something else here like my passions -->
-    <section class="panel" id="panel-books" role="dialog" aria-modal="true" aria-labelledby="panel-books-title" hidden>
-      <div class="panel-bar">
-        <span class="panel-title" id="panel-books-title">Books</span>
-        <button type="button" class="panel-close" data-close aria-label="Close panel">x</button>
-      </div>
-      <div class="panel-body">
-        <ul class="panel-list">
-          <!-- REPLACE: add more book entries below -->
-          <li>
-            <span class="list-label">A Man Against Thee</span>
-            <span class="list-desc">manhwa</span>
-          </li>
-          <li>
-            <span class="list-label">The Book Thief</span>
-            <span class="list-desc">book — Markus Zusak</span>
-          </li>
-          <li>
+    <section class="panel" id="panel-hobbies" role="dialog" aria-modal="true" aria-labelledby="panel-hobbies-title" hidden>
+  <div class="panel-bar">
+    <span class="panel-title" id="panel-hobbies-title">Hobbies</span>
+    <button type="button" class="panel-close" data-close aria-label="Close panel">x</button>
+  </div>
+  <div class="panel-body">
+
+    <h3 class="panel-group-title">Artists</h3>
+    <ul class="panel-list panel-list--media">
+      <li>
+        <a class="list-link" href="https://open.spotify.com/artist/1vVHevk2PD45epYnDi9CCc" target="_blank" rel="noopener noreferrer">
+          <img class="list-thumb" src="https://i.scdn.co/image/ab67616d0000b273d2b66d95bccbf64354358612" alt="Jack Stauber" loading="lazy">
+          <span class="list-text">
+            <span class="list-label">Jack Stauber</span>
+            <span class="list-desc">2020</span>
+          </span>
+        </a>
+      </li>
+      <li>
+        <a class="list-link" href="https://open.spotify.com/artist/69kihYAcQNLmqq6uJWulyP" target="_blank" rel="noopener noreferrer">
+          <img class="list-thumb" src="https://viberate-upload.ams3.cdn.digitaloceanspaces.com/prod/entity/artist/naif.jpg" alt="Naif" loading="lazy">
+          <span class="list-text">
+            <span class="list-label">Naif</span>
+            <span class="list-desc">2021</span>
+          </span>
+        </a>
+      </li>
+      <li>
+        <a class="list-link" href="https://djs3rl.com/" target="_blank" rel="noopener noreferrer">
+          <img class="list-thumb" src="https://i.scdn.co/image/ab6761610000e5eba3a56734d6bb8dbdcecaa38a" alt="S3RL" loading="lazy">
+          <span class="list-text">
+            <span class="list-label">S3RL</span>
+            <span class="list-desc">2023</span>
+          </span>
+        </a>
+      </li>
+      <li>
+        <a class="list-link" href="https://open.spotify.com/artist/1Cd373x8qzC7SNUg5IToqp" target="_blank" rel="noopener noreferrer">
+          <img class="list-thumb" src="https://i.scdn.co/image/ab67616100005174c703d350f9cce13df4c64b3e" alt="BoywithUke" loading="lazy">
+          <span class="list-text">
+            <span class="list-label">BoywithUke</span>
+            <span class="list-desc">2025</span>
+          </span>
+        </a>
+      </li>
+    </ul>
+
+    <h3 class="panel-group-title">Games</h3>
+    <ul class="panel-list panel-list--media">
+      <li>
+        <a class="list-link" href="https://store.steampowered.com/app/667530/Drunken_Wrestlers_2/" target="_blank" rel="noopener noreferrer">
+          <img class="list-thumb" src="https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/667530/header.jpg" alt="Drunken Wrestlers 2" loading="lazy">
+          <span class="list-text">
+            <span class="list-label">Drunken Wrestlers 2</span>
+            <span class="list-desc">2021</span>
+          </span>
+        </a>
+      </li>
+      <li>
+        <a class="list-link" href="https://store.steampowered.com/app/1239080/Door_Kickers_2_Task_Force_North/" target="_blank" rel="noopener noreferrer">
+          <img class="list-thumb" src="https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/1239080/header.jpg" alt="Door Kickers 2" loading="lazy">
+          <span class="list-text">
+            <span class="list-label">Door Kickers 2</span>
+            <span class="list-desc">2024</span>
+          </span>
+        </a>
+      </li>
+      <li>
+        <a class="list-link" href="https://store.steampowered.com/app/294100/RimWorld/" target="_blank" rel="noopener noreferrer">
+          <img class="list-thumb" src="https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/294100/header.jpg" alt="Rimworld" loading="lazy">
+          <span class="list-text">
+            <span class="list-label">Rimworld</span>
+            <span class="list-desc">2023</span>
+          </span>
+        </a>
+      </li>
+    </ul>
+
+    <h3 class="panel-group-title">Anime</h3>
+    <ul class="panel-list panel-list--media">
+      <li>
+        <a class="list-link" href="https://myanimelist.net/anime/1575/Code_Geass__Hangyaku_no_Lelouch" target="_blank" rel="noopener noreferrer">
+          <img class="list-thumb" src="https://cdn.myanimelist.net/images/anime/4/9391.jpg" alt="Code Geass" loading="lazy">
+          <span class="list-text">
+            <span class="list-label">Code Geass</span>
+            <span class="list-desc">2023</span>
+          </span>
+        </a>
+      </li>
+      <li>
+        <a class="list-link" href="https://myanimelist.net/anime/23283/Zankyou_no_Terror" target="_blank" rel="noopener noreferrer">
+          <img class="list-thumb" src="https://m.media-amazon.com/images/M/MV5BMzMwMTFiOWQtMmJlNS00YTg1LWI0MDAtMTFjY2MwYmY3NzNhXkEyXkFqcGc@._V1_.jpg" alt="Terror in Resonance" loading="lazy">
+          <span class="list-text">
+            <span class="list-label">Zankyou no Terror</span>
+            <span class="list-desc">2024</span>
+          </span>
+        </a>
+      </li>
+    </ul>
+
+    <h3 class="panel-group-title">Book</h3>
+    <ul class="panel-list panel-list--media">
+      <li>
+        <a class="list-link" href="https://www.goodreads.com/book/show/39101777-surrounded-by-idiots" target="_blank" rel="noopener noreferrer">
+          <img class="list-thumb" src="https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1583763517i/39101777.jpg" alt="Surrounded by Idiots" loading="lazy">
+          <span class="list-text">
             <span class="list-label">Surrounded by Idiots</span>
-            <span class="list-desc">book — Thomas Erikson</span>
-          </li>
-          <li>
-            <span class="list-label">The Art of Fear</span>
-            <span class="list-desc">book — Kristen Ulmer</span>
-          </li>
-        </ul>
-      </div>
-    </section>
+            <span class="list-desc">2022 — Thomas Erikson</span>
+          </span>
+        </a>
+      </li>
+    </ul>
+
+  </div>
+</section>
 
     <!-- Photography panel (camera) -> "not my life" = environment -->
     <!-- REPLACE: add more <img class="panel-thumb"> lines. Files in assets/photography/environment/. -->
@@ -723,7 +810,7 @@
         <button type="button" class="panel-close" data-close aria-label="Close panel">x</button>
       </div>
       <div class="panel-body">
-        <p class="panel-intro">a piece I made when I was burnt out</p>
+        <p class="panel-intro">a piece I made</p>
         <p class="corkboard-desc">I made this when I was burnt out in matrics</p>
         <img class="full-img" loading="lazy" src="assets/art/shatteredGlass.jpg" alt="Shattered Glass — made during matrics burnout">
       </div>
@@ -862,6 +949,8 @@
         <!-- Changelog — sourced from commit titles, newest first. -->
         <h2 class="gallery-section">Changelog</h2>
         <ul class="panel-list">
+          
+          <li><span class="list-label">v1.8 · 2026-09-08</span><span class="list-desc">Updated 'Book' section into 'Hobbies' section</span></li>
           <li><span class="list-label">v1.8 · 2026-08-13</span><span class="list-desc">Added 8 new photos, 3 new songs and paragraph/markdown stories for songs</span></li>
           <li><span class="list-label">v1.7 · 2026-07-24</span><span class="list-desc">Added socials section in About-me tab, added Safe2Save and more screenshots in projects tab</span></li>
           <li><span class="list-label">v1.6 · 2026-07-20</span><span class="list-desc">Overhauled the music player, Improved hotspots grid, fix youtube embed collide ost bug</span></li>
