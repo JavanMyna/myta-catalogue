@@ -16,6 +16,17 @@
   --font-head: "Press Start 2P", monospace;   /* chunky pixel font: headers/labels */
   --font-body: "Pixelify Sans", monospace;    /* readable pixel font: body text */
   --room-max: 620px;                          /* how wide the room image is allowed to get */
+
+  /* Passion Timeline tokens: the rail's center x, the vertical gap between
+     entries, and the three-tier type scale (section header / story entry /
+     date). Prefixed + timeline-only selectors, so other panels that reuse
+     .list-label/.list-desc are untouched. The recent sprint arc overrides
+     --tl-gap and the two text tiers for its tighter pace. */
+  --tl-offset: 7px;        /* rail center — line, node dots and ticks all derive from this */
+  --tl-gap: 22px;          /* spacing between entries (long arc default; recent overrides to 8px) */
+  --tl-fs-heading: 11px;   /* section header ("the search" / "the sprint") */
+  --tl-fs-entry: 11px;     /* story text (.list-label) */
+  --tl-fs-date: 18px;      /* year/date (.list-desc) */
 }
 
 /* A "reset" — strips default browser margins/padding so I control spacing. */
@@ -404,18 +415,18 @@ body::before {
 
 .timeline-heading {
   font-family: var(--font-head);
-  font-size: 11px;
+  font-size: var(--tl-fs-heading);
   color: var(--text);
   letter-spacing: 1px;
   margin: 20px 0 12px;
-  padding-left: 22px;           /* aligns with the timeline text, past the line */
+  padding-left: calc(var(--tl-offset) + 15px);  /* aligns with the timeline text, past the line */
   position: relative;
 }
 /* A little tick where the heading meets the connector line. */
 .timeline-heading::before {
   content: "";
   position: absolute;
-  left: 7px;
+  left: var(--tl-offset);
   top: 50%;
   transform: translateY(-50%);
   width: 7px;
@@ -430,33 +441,35 @@ body::before {
   display: flex;
   flex-direction: column;
   position: relative;
-  padding-left: 22px;           /* room for the line + node + gutter */
+  gap: var(--tl-gap);
 }
-/* The vertical connector line itself, running down the left of each list. */
+/* The vertical connector line itself, running down the left of each list,
+   translateX(-50%)-centered on --tl-offset — the same centering the node
+   dots use, so line and dots share one x by construction. */
 .timeline::before {
   content: "";
   position: absolute;
-  left: 7px;
+  left: var(--tl-offset);
+  transform: translateX(-50%);
   top: 4px;
   bottom: 4px;
   width: 2px;
   background: var(--red-dim);
 }
 
-/* Long arc: generous spacing — one slow beat per year. */
-.timeline-long { gap: 18px; padding-bottom: 6px; }
-.timeline-long li { margin-bottom: 4px; }
-
-/* Recent sprint: tight spacing — brisk monthly beats. Its connector + nodes
-   switch to the brighter red so the pace shift reads at a glance. */
-.timeline-recent { gap: 8px; }
-.timeline-recent::before { background: var(--red-bright); }
+/* Entry text sits 15px past the rail. The indent lives on the li (not the
+   list) so the absolutely-positioned dot's containing block starts at the
+   text edge — making left: var(--tl-offset) the rail's x in li coordinates. */
+.timeline li {
+  position: relative;
+  padding-left: calc(var(--tl-offset) + 15px);
+}
 
 /* Node dot on the line for each entry. */
-.timeline li { position: relative; }
 .timeline-node {
   position: absolute;
-  left: -22px;                  /* sits on the connector line (relative to padded li) */
+  left: var(--tl-offset);
+  transform: translateX(-50%);
   top: 2px;
   width: 9px;
   height: 9px;
@@ -466,15 +479,36 @@ body::before {
   /* vertical center the dot on roughly the first text line */
   margin-top: 4px;
 }
+
+/* The three-tier type scale lives in the --tl-fs-* tokens. Scoped under
+   .timeline so the shared .list-label/.list-desc defaults other panels use
+   are untouched. text-wrap: balance evens up multi-line story text (no-op
+   on single lines and in browsers without support). */
+.timeline .list-label {
+  font-size: var(--tl-fs-entry);
+  text-wrap: balance;
+}
+.timeline .list-desc { font-size: var(--tl-fs-date); }
+
+/* Long arc: generous spacing — one slow beat per year (uses the default
+   --tl-gap from :root; the old 18px gap + 4px li margin are folded into it). */
+.timeline-long { padding-bottom: 6px; }
+.timeline-long .list-label { line-height: 1.5; }
+
+/* Recent sprint: tight spacing — brisk monthly beats. Its connector + nodes
+   switch to the brighter red so the pace shift reads at a glance; the tighter
+   rhythm is one var override per arc, not per-entry rules. */
+.timeline-recent {
+  --tl-gap: 8px;
+  --tl-fs-entry: 10px;
+  --tl-fs-date: 15px;
+}
+.timeline-recent::before { background: var(--red-bright); }
 .timeline-recent .timeline-node {
   background: var(--red-bright);
   box-shadow: 0 0 6px rgba(255, 59, 59, 0.7);
 }
-
-/* Tighter type rhythm for the sprint so the months feel closer together. */
-.timeline-recent .list-label { font-size: 10px; margin-bottom: 2px; line-height: 1.4; }
-.timeline-recent .list-desc  { font-size: 15px; }
-.timeline-long .list-label  { line-height: 1.5; }
+.timeline-recent .list-label { margin-bottom: 2px; line-height: 1.4; }
 
 /* ----- Text blocks (about me, intros, stubs) ----- */
 .panel-body p { margin-bottom: 12px; }
