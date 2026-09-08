@@ -1220,3 +1220,39 @@ audio {
 @media (min-width: 768px) and (max-width: 1024px) {
   .room { max-width: min(560px, calc(80vh * 0.75)); }
 }
+
+/* ============================================================
+   Book hotspot css
+   ============================================================ */
+
+.panel-group-title {
+  margin: 16px 0 8px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.7;
+}
+.panel-group-title:first-child {
+  margin-top: 0;
+}
+
+.panel-list--media .list-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.list-thumb {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.list-text {
+  display: flex;
+  flex-direction: column;
+}
