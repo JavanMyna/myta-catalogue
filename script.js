@@ -718,19 +718,19 @@ var sfxZoomOut = new Audio("assets/sfx/clickCamera.wav");
   // classes suggested in Brief 02).
   var TIMELINE = {
     long: [
-      { label: "Wanted to become a programmer : Started coding in python (but was stuck in Tutorial hell)", when: "2020" },
-      { label: "Wanted to become an animator : Bought my first drawing tablet", when: "2021" },
-      { label: "Wanted to become a psychologist (But somehow didnt want to become a therapist)", when: "2022" },
-      { label: "Started teaching myself guitar", when: "2023" },
-      { label: "Wanted to become a music composer & artist : Felt discouraged because the future isn't that sustainable", when: "2024" },
-      { label: "Wanted to become a paramedic : But pressured to become a doctor", when: "2025" }
+      { label: "I actually aspired to become a programmer in form 1. For some time, I tried learning coding in python via youtube but it wasnt really the best way out there. Too bad it was Covid19 happened so I kinda lost that spark that time.", when: "2020" },
+      { label: "Weirdly interested into becoming a psychologist", when: "2022" },
+      { label: "Got into music so that time I started teaching myself guitar and basic music theories", when: "2023" },
+      { label: "The time I was crazy composing simple music like they're from an antique game", when: "2024" },
+      { label: "Suddenly got the passion to become a paramedic (but the pressure is real, too bad malaysia dont have that good spot for paramedicine)", when: "2025" }
     ],
     recent: [
-      { label: "On the last week of upu submission, made the decision to go for Computer Science Software Engineering", when: "2026 March" },
-      { label: "Just after finishing matrics, taught myself how to code basic python", when: "2026 May" },
+      { label: "The last week of upu submission, I made the decision to go for Computer Science Software Engineering", when: "2026 March" },
+      { label: "Just after finishing matrics, I taught myself how to code basic python", when: "2026 May" },
       { label: "Got into web developing (started learning basic JS, HTML, CSS)", when: "2026 June" },
       { label: "I had a lot of ideas and I utilized AI to make it into a reality.", when: "2026 July" },
-      { label: "I helped out my friend on his MChan project. On the UPU day, I was offered CS Intelligent Computing in USM", when: "2026 August" }
+      { label: "Earlier this month, I helped out my friend on his MChan project to create Miya which is a moderating system that flags messages that shouldnt be in a forum yeah", when: "2026 August" },
+      { label: "Currently enrolled in USM for CS Intelligent Computing woooha", when: "2026 September" },
     ]
   };
 
